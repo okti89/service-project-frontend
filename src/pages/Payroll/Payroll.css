@@ -1,0 +1,201 @@
+.payroll-detail-modal .modal-content {
+  border: 0;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.payroll-detail-body {
+  background:
+    radial-gradient(circle at top left, rgba(13, 110, 253, 0.1), transparent 28%),
+    radial-gradient(circle at bottom right, rgba(25, 135, 84, 0.08), transparent 24%),
+    #f7f9fc;
+}
+
+.payroll-detail-hero {
+  background: linear-gradient(145deg, #ffffff 20%, #f1f6ff 100%);
+  border-radius: 18px;
+}
+
+.payroll-detail-chip {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  background: rgba(13, 110, 253, 0.12);
+  color: #0d6efd;
+  font-size: 0.78rem;
+  font-weight: 800;
+  padding: 0.32rem 0.75rem;
+}
+
+.payroll-status-badge {
+  font-size: 0.82rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 999px;
+}
+
+.payroll-detail-stat {
+  height: 100%;
+  border: 1px solid #e6ecf5;
+  border-radius: 14px;
+  background: #fff;
+  padding: 0.9rem 1rem;
+}
+
+.payroll-detail-stat span {
+  display: block;
+  color: #64748b;
+  font-size: 0.76rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.payroll-detail-stat strong {
+  color: #0f172a;
+  font-size: 1.05rem;
+}
+
+/* ============================================================
+   Payroll summary stat cards (single row, color-coded, auto-shrink)
+   ============================================================ */
+.payroll-summary-row {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.payroll-summary-row > [class*='col-'] {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+}
+
+.payroll-summary-row > [class*='col-'] > .payroll-stat-card,
+.payroll-summary-row > [class*='col-'] > .card {
+  width: 100%;
+}
+
+.payroll-stat-card {
+  position: relative;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #fff;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.payroll-stat-card::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 4px;
+  background: var(--payroll-stat-accent, #6c757d);
+  opacity: 0.95;
+}
+
+.payroll-stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0.5rem 1.25rem rgba(15, 23, 42, 0.08) !important;
+}
+
+.payroll-stat-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.85rem 0.95rem;
+  min-width: 0;
+}
+
+.payroll-stat-label {
+  display: block;
+  font-size: clamp(0.66rem, 0.6rem + 0.25vw, 0.78rem);
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--payroll-stat-label-color, #64748b);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.payroll-stat-value {
+  display: block;
+  font-weight: 800;
+  line-height: 1.15;
+  color: var(--payroll-stat-value-color, #0f172a);
+  font-size: clamp(0.95rem, 0.6rem + 1.2vw, 1.45rem);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+  word-break: keep-all;
+  overflow-wrap: normal;
+  hyphens: none;
+}
+
+/* Color themes for each card */
+.payroll-stat-card--total {
+  --payroll-stat-accent: #0d6efd;
+  --payroll-stat-label-color: #0d6efd;
+  --payroll-stat-value-color: #0d6efd;
+  background: linear-gradient(160deg, #ffffff 30%, #e7f0ff 100%);
+}
+
+.payroll-stat-card--paid {
+  --payroll-stat-accent: #198754;
+  --payroll-stat-label-color: #198754;
+  --payroll-stat-value-color: #146c43;
+  background: linear-gradient(160deg, #ffffff 30%, #e6f6ec 100%);
+}
+
+.payroll-stat-card--pending {
+  --payroll-stat-accent: #dc3545;
+  --payroll-stat-label-color: #dc3545;
+  --payroll-stat-value-color: #b02a37;
+  background: linear-gradient(160deg, #ffffff 30%, #fde7e9 100%);
+}
+
+.payroll-stat-card--premiums {
+  --payroll-stat-accent: #20c997;
+  --payroll-stat-label-color: #0f8c6b;
+  --payroll-stat-value-color: #0f8c6b;
+  background: linear-gradient(160deg, #ffffff 30%, #defaee 100%);
+}
+
+.payroll-stat-card--deductions {
+  --payroll-stat-accent: #fd7e14;
+  --payroll-stat-label-color: #c6620b;
+  --payroll-stat-value-color: #c6620b;
+  background: linear-gradient(160deg, #ffffff 30%, #fdebcf 100%);
+}
+
+.payroll-stat-card--net {
+  --payroll-stat-accent: #6f42c1;
+  --payroll-stat-label-color: #6f42c1;
+  --payroll-stat-value-color: #59359a;
+  background: linear-gradient(160deg, #ffffff 30%, #ece1ff 100%);
+}
+
+/* On medium/small screens fall back to 3 columns, then 2, then 1 */
+@media (max-width: 1399.98px) {
+  .payroll-summary-row > [class*='col-'] {
+    flex: 0 0 calc(100% / 3);
+  }
+}
+
+@media (max-width: 991.98px) {
+  .payroll-summary-row > [class*='col-'] {
+    flex: 0 0 calc(100% / 2);
+  }
+}
+
+@media (max-width: 575.98px) {
+  .payroll-summary-row > [class*='col-'] {
+    flex: 0 0 100%;
+  }
+}
+
+.payroll-template-panel {
+  background: linear-gradient(145deg, #ffffff 10%, #f3f7fb 100%);
+  border: 1px solid #e6ecf5;
+  border-radius: 16px;
+}

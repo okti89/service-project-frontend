@@ -1,0 +1,97 @@
+.inventory-page {
+  color: #0f172a;
+}
+
+.inventory-header {
+  margin-bottom: 1.5rem;
+}
+
+.inventory-subtitle {
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 0.92rem;
+  margin-top: 0.25rem;
+}
+
+.inventory-stat-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #fff;
+  min-height: 104px;
+  padding: 0.9rem 1rem;
+  cursor: pointer;
+  opacity: 0.85;
+  transition: transform 150ms ease, box-shadow 150ms ease, opacity 150ms ease;
+}
+
+.inventory-stat-card:hover,
+.inventory-stat-card.is-active {
+  opacity: 1;
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.1);
+}
+
+.inventory-stat-card span {
+  display: block;
+  color: #64748b;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  margin-bottom: 0.3rem;
+}
+
+.inventory-stat-card strong {
+  font-size: 1.55rem;
+  line-height: 1.15;
+  color: #0f172a;
+}
+
+.inventory-stat-card.is-value {
+  cursor: default;
+}
+
+.inventory-filter-card,
+.inventory-table-card,
+.inventory-mini-card {
+  border-radius: 8px;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+}
+
+.inventory-table-card thead th {
+  color: #475569;
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.inventory-table-card .table {
+  --bs-table-hover-bg: #f8fafc;
+}
+
+.inventory-mini-card .card-body {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.inventory-mini-card span {
+  color: #64748b;
+  font-weight: 600;
+}
+
+.inventory-mini-card strong {
+  color: #0f172a;
+  font-size: 1.15rem;
+}
+
+.inventory-movement-search {
+  position: relative;
+}
+
+@media (max-width: 991px) {
+  .inventory-subtitle {
+    font-size: 0.86rem;
+  }
+}
