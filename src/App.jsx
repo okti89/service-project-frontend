@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { BrowserRouter, Routes, Route, Navigate, Outlet, Link, useLocation } from 'react-router-dom'
 import { ThemeProvider } from './context/ThemeContext'
 import { ConfigProvider, useConfig } from './context/ConfigContext'
@@ -37,6 +37,7 @@ import Settings from './pages/Config/Settings'
 import Services from './pages/Services/Services'
 import Technicians from './pages/Technicians/Technicians'
 import WorkingHours from './pages/Technicians/WorkingHours'
+import TechnicianLeaves from './pages/Technicians/TechnicianLeaves'
 import Users from './pages/Users/Users'
 import Planner from './pages/Planner/Planner'
 import Notifications from './pages/Notifications/Notifications'
@@ -49,6 +50,8 @@ import GlobalSearchModal from './components/GlobalSearchModal'
 import PlaceholderPage from './components/PlaceholderPage'
 import Feed from './pages/Feed/Feed'
 import api from './api/api'
+
+const c = (...codes) => String.fromCharCode(...codes)
 
 const resolveLogoUrl = (logoPath) => {
   if (!logoPath) return ''
@@ -72,16 +75,16 @@ const sidebarSections = [
     links: [
       { to: '/dashboard', icon: FaHome, label: 'Ana Sayfa', match: (pathname) => pathname === '/dashboard' },
       { to: '/dashboard/pending-users', icon: FaUserClock, label: 'Onay Bekleyenler', match: (pathname) => pathname.includes('/pending-users') },
-      { to: '/dashboard/customers', icon: FaUsers, label: 'Müşteriler', match: (pathname) => pathname.includes('/customers') },
+      { to: '/dashboard/customers', icon: FaUsers, label: 'M' + c(252) + c(351) + 'teriler', match: (pathname) => pathname.includes('/customers') },
     ],
   },
   {
-    title: 'Teknisyen Yönetimi',
+    title: 'Teknisyen Y' + c(246) + 'netimi',
     links: [
       { to: '/dashboard/technicians', icon: FaUserCog, label: 'Teknisyenler', match: (pathname) => pathname.includes('/technicians') && !pathname.includes('/technician-') },
       { to: '/dashboard/working-hours', icon: FaClock, label: 'Mesailer', match: (pathname) => pathname.includes('/working-hours') },
       { to: '/dashboard/technician-locations', icon: FaMapMarkerAlt, label: 'Konumlar', match: (pathname) => pathname.includes('/technician-locations') },
-      { to: '/dashboard/technician-leaves', icon: FaCalendarCheck, label: 'İzinler', match: (pathname) => pathname.includes('/technician-leaves') },
+      { to: '/dashboard/technician-leaves', icon: FaCalendarCheck, label: c(304) + 'zinler', match: (pathname) => pathname.includes('/technician-leaves') },
     ],
   },
   {
@@ -90,18 +93,18 @@ const sidebarSections = [
       { to: '/dashboard/services', icon: FaWrench, label: 'Servisler', match: (pathname) => pathname.includes('/services') },
       { to: '/dashboard/inventory', icon: FaBoxes, label: 'Stok & Envanter', match: (pathname) => pathname.includes('/inventory') },
       { to: '/dashboard/accounting', icon: FaMoneyCheckAlt, label: 'Finans & Muhasebe', match: (pathname) => pathname.includes('/accounting') },
-      { to: '/dashboard/payroll', icon: FaMoneyCheckAlt, label: 'Maaş Bordrosu', match: (pathname) => pathname.includes('/payroll') },
+      { to: '/dashboard/payroll', icon: FaMoneyCheckAlt, label: 'Maa' + c(351) + ' Bordrosu', match: (pathname) => pathname.includes('/payroll') },
       { to: '/dashboard/reporting', icon: FaChartLine, label: 'Raporlar', match: (pathname) => pathname.includes('/reporting') },
     ],
   },
   {
     title: 'Sistem',
     links: [
-      { to: '/dashboard/users', icon: FaUserShield, label: 'Tüm Kullanıcılar', match: (pathname) => pathname.includes('/users') && !pathname.includes('/pending-users') },
+      { to: '/dashboard/users', icon: FaUserShield, label: 'T' + c(252) + 'm Kullan' + c(305) + 'c' + c(305) + 'lar', match: (pathname) => pathname.includes('/users') && !pathname.includes('/pending-users') },
       { to: '/dashboard/inbox', icon: FaBell, label: 'Bildirimlerim', match: (pathname) => pathname.includes('/inbox') },
       { to: '/dashboard/notifications', icon: FaPaperPlane, label: 'Kampanya & Duyuru', match: (pathname) => pathname.includes('/notifications') },
-      { to: '/dashboard/settings', icon: FaCog, label: 'Firma Ayarları', match: (pathname) => pathname.includes('/settings') },
-      { to: '/dashboard/feed', icon: FaBell, label: 'Haber Akışı', match: (pathname) => pathname.includes('/feed') },
+      { to: '/dashboard/settings', icon: FaCog, label: 'Firma Ayarlar' + c(305), match: (pathname) => pathname.includes('/settings') },
+      { to: '/dashboard/feed', icon: FaBell, label: 'Haber Ak' + c(305) + c(351) + c(305), match: (pathname) => pathname.includes('/feed') },
     ],
   },
 ]
@@ -117,7 +120,7 @@ const Sidebar = ({ location, onFeedbackClick, brandName, brandLogo }) => (
           style={{ width: 28, height: 28, borderRadius: 6, objectFit: 'cover' }}
         />
       ) : (
-        <span className="text-primary me-2">⚙</span>
+        <FaCog className="text-primary me-2" />
       )}
       {brandName || 'Serfix'}
     </Link>
@@ -148,7 +151,7 @@ const Sidebar = ({ location, onFeedbackClick, brandName, brandLogo }) => (
           className="sidebar-link text-warning fw-bold mx-2 rounded-3"
           style={{ cursor: 'pointer', backgroundColor: 'rgba(255, 193, 7, 0.1)' }}
         >
-          <FaLightbulb className="me-2 text-warning" /> Öneri & Hata Bildir
+          <FaLightbulb className="me-2 text-warning" /> {c(214) + 'neri & Hata Bildir'}
         </div>
       </div>
     </div>
@@ -246,11 +249,11 @@ const MainLayout = () => {
                   <span className="small text-white-50">{currentTime}</span>
                 </Navbar.Text>
                 <Navbar.Text className="text-white ms-3">
-                  {user?.full_name || user?.email || 'Kullanıcı'}
+                  {user?.full_name || user?.email || ('Kullan' + c(305) + 'c' + c(305))}
                 </Navbar.Text>
                 <Button variant="outline-light" size="sm" className="ms-3" onClick={logout}>
                   <FaSignOutAlt className="me-1" />
-                  Çıkış
+                  {'Çıkış'}
                 </Button>
               </Nav>
             </Navbar.Collapse>
@@ -267,7 +270,7 @@ const MainLayout = () => {
           onSubmit={async (event) => {
             event.preventDefault()
             if (!feedbackMessage.trim()) {
-              import('react-hot-toast').then((m) => m.default.error('Lütfen bir mesaj girin.'))
+              import('react-hot-toast').then((m) => m.default.error('L' + c(252) + 'tfen bir mesaj girin.'))
               return
             }
             setFeedbackSubmitting(true)
@@ -277,7 +280,7 @@ const MainLayout = () => {
                 subject: feedbackSubject || 'Uygulama Geri Bildirimi',
                 message: feedbackMessage,
               })
-              import('react-hot-toast').then((m) => m.default.success('Geri bildiriminiz başarıyla iletildi. Teşekkür ederiz!'))
+              import('react-hot-toast').then((m) => m.default.success('Geri bildiriminiz ba' + c(351) + 'ar' + c(305) + 'yla iletildi. Te' + c(351) + 'ekk' + c(252) + 'r ederiz!'))
               setShowFeedbackModal(false)
               setFeedbackSubject('')
               setFeedbackMessage('')
@@ -289,28 +292,29 @@ const MainLayout = () => {
           }}
         >
           <Modal.Header closeButton className="bg-light">
-            <Modal.Title className="fw-bold"><FaLightbulb className="me-2 text-warning" />Öneri & Hata Bildir</Modal.Title>
+            <Modal.Title className="fw-bold"><FaLightbulb className="me-2 text-warning" />{'Öneri & Hata Bildir'}</Modal.Title>
           </Modal.Header>
           <Modal.Body className="p-4">
             <p className="text-muted mb-4" style={{ fontSize: '0.9rem' }}>
-              Karşılaştığınız bir hatayı bildirmek veya uygulamanın gelişimi için bir fikir sunmak istiyorsanız formu kullanın.
-              Mesajınız anında yöneticilere e-posta olarak ulaştırılır.
+              {'Karşılaştığınız bir hatayı bildirmek veya uygulamanın gelişimi için bir fikir sunmak istiyorsanız formu kullanın.'}
+              <br />
+              {'Mesajınız anında yöneticilere e-posta olarak ulaştırılır.'}
             </p>
             <Form.Group className="mb-3">
               <Form.Label className="fw-bold">Konu</Form.Label>
               <Form.Control
                 type="text"
-                placeholder="Örn: Stok Modülü Hatası / Yeni Özellik İsteği"
+                placeholder={c(214) + 'rn: Stok Mod' + c(252) + 'l' + c(252) + ' Hatas' + c(305) + ' / Yeni ' + c(214) + 'zellik ' + c(304) + 'ste' + c(287) + 'i'}
                 value={feedbackSubject}
                 onChange={(event) => setFeedbackSubject(event.target.value)}
               />
             </Form.Group>
             <Form.Group className="mb-3">
-              <Form.Label className="fw-bold">Mesajınız *</Form.Label>
+              <Form.Label className="fw-bold">{'Mesaj' + c(305) + 'n' + c(305) + 'z *'}</Form.Label>
               <Form.Control
                 as="textarea"
                 rows={5}
-                placeholder="Detayları buraya yazınız..."
+                placeholder={'Detaylar' + c(305) + ' buraya yaz' + c(305) + 'n' + c(305) + 'z...'}
                 required
                 value={feedbackMessage}
                 onChange={(event) => setFeedbackMessage(event.target.value)}
@@ -318,9 +322,9 @@ const MainLayout = () => {
             </Form.Group>
           </Modal.Body>
           <Modal.Footer>
-            <Button variant="secondary" onClick={() => setShowFeedbackModal(false)} disabled={feedbackSubmitting}>İptal</Button>
+            <Button variant="secondary" onClick={() => setShowFeedbackModal(false)} disabled={feedbackSubmitting}>{c(304) + 'ptal'}</Button>
             <Button variant="primary" type="submit" disabled={feedbackSubmitting}>
-              {feedbackSubmitting ? <Spinner animation="border" size="sm" /> : 'Gönder'}
+              {feedbackSubmitting ? <Spinner animation="border" size="sm" /> : 'G' + c(246) + 'nder'}
             </Button>
           </Modal.Footer>
         </Form>
@@ -413,19 +417,7 @@ function App() {
                   <Route path="technicians" element={<Technicians />} />
                   <Route path="working-hours" element={<WorkingHours defaultTab="shifts" />} />
                   <Route path="technician-locations" element={<WorkingHours defaultTab="locations" />} />
-                  <Route
-                    path="technician-leaves"
-                    element={
-                      <PlaceholderPage
-                        title="Teknisyen İzinleri"
-                        description="İzin, devamsızlık ve saha dışı gün yönetimi için giriş noktası hazırlandı."
-                        links={[
-                          { to: '/dashboard/technicians', label: 'Teknisyenler' },
-                          { to: '/dashboard/working-hours', label: 'Mesailer' },
-                        ]}
-                      />
-                    }
-                  />
+                  <Route path="technician-leaves" element={<TechnicianLeaves />} />
                   <Route path="accounting" element={<Accounting />} />
                   <Route path="payroll" element={<Payroll />} />
                   <Route path="reporting" element={<Reports />} />
@@ -434,7 +426,7 @@ function App() {
                   <Route path="notifications" element={<Notifications />} />
                   <Route path="planner" element={<Planner />} />
                   <Route path="settings" element={<Settings />} />
-                  <Route path="*" element={<PlaceholderPage title="Yapım Aşamasında" />} />
+                  <Route path="*" element={<PlaceholderPage title={'Yap?m A?amas?nda'} />} />
                 </Route>
               </Route>
             </Routes>
