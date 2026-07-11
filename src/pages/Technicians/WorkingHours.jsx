@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+﻿import { useEffect, useMemo, useRef, useState } from 'react'
 import { Alert, Badge, Button, ButtonGroup, Card, Col, Form, InputGroup, Row, Spinner, Tab, Tabs, Table } from 'react-bootstrap'
 import {
   FaCalendarAlt,
@@ -110,7 +110,7 @@ function formatHours(value) {
   return `${whole}s ${mins}dk`
 }
 
-const WorkingHours = () => {
+const WorkingHours = ({ defaultTab = 'shifts' }) => {
   const [searchParams, setSearchParams] = useSearchParams()
   const initialMonth = searchParams.get('month') || getCurrentMonth()
   const initialRange = getMonthDateRange(initialMonth)
@@ -124,7 +124,7 @@ const WorkingHours = () => {
   const [locationRows, setLocationRows] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [activeTab, setActiveTab] = useState('shifts')
+  const [activeTab, setActiveTab] = useState(searchParams.get('tab') || defaultTab)
   const lastDetailsRequestKeyRef = useRef('')
 
   useEffect(() => {
@@ -167,8 +167,9 @@ const WorkingHours = () => {
     if (month) params.month = month
     if (dateFrom) params.date_from = dateFrom
     if (dateTo) params.date_to = dateTo
+    if (activeTab) params.tab = activeTab
     setSearchParams(params, { replace: true })
-  }, [selectedTechnician, month, dateFrom, dateTo, setSearchParams])
+  }, [selectedTechnician, month, dateFrom, dateTo, activeTab, setSearchParams])
 
   useEffect(() => {
     if (!selectedTechnician) return
@@ -249,6 +250,11 @@ const WorkingHours = () => {
   )
   const selectedTechnicianName = readName(selectedTechnicianData)
 
+  useEffect(() => {
+    const nextTab = searchParams.get('tab') || defaultTab
+    setActiveTab((current) => (current === nextTab ? current : nextTab))
+  }, [defaultTab, searchParams])
+
   const resetFilters = () => {
     const currentMonth = getCurrentMonth()
     setMonth(currentMonth)
@@ -270,7 +276,7 @@ const WorkingHours = () => {
               <h3 className="working-hero-title">Teknisyen Mesai Saatleri</h3>
               <div className="working-hero-subtitle">
                 <FaUsers className="me-2" />
-                {selectedTechnicianName} icin mesai ve lokasyon geçmişi
+                {selectedTechnicianName} için mesai ve lokasyon geçmişi
               </div>
             </div>
           </div>
@@ -422,7 +428,7 @@ const WorkingHours = () => {
               title={
                 <span>
                   <FaStopwatch className="me-2" />
-                  Mesai Kayıtlari
+                  Mesai Kayıtları
                   <Badge bg="primary" pill className="ms-2">{shiftRows.length}</Badge>
                 </span>
               }
@@ -436,7 +442,7 @@ const WorkingHours = () => {
                   <FaStopwatch className="working-empty-icon" />
                   <div className="working-empty-title">Mesai kaydı bulunamadı</div>
                   <div className="working-empty-text">
-                    Seçili filtreler icin bu teknisyene ait mesai kaydı yok.
+                    Seçili filtreler için bu teknisyene ait mesai kaydı yok.
                   </div>
                 </div>
               ) : (
@@ -495,7 +501,7 @@ const WorkingHours = () => {
                   <FaMapMarkerAlt className="working-empty-icon" />
                   <div className="working-empty-title">Lokasyon kaydı yok</div>
                   <div className="working-empty-text">
-                    Bu teknisyenin seçili tarih araliginda lokasyon logu bulunmuyor.
+                    Bu teknisyenin seçili tarih aralığında lokasyon logu bulunmuyor.
                   </div>
                 </div>
               ) : (
@@ -537,3 +543,5 @@ const WorkingHours = () => {
 }
 
 export default WorkingHours
+
+

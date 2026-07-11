@@ -54,12 +54,12 @@ const userTypeOptions = [
   { value: 'customer', label: 'Müşteri' },
 ]
 
-const Users = () => {
+const Users = ({ defaultFilter = 'all' }) => {
   const [users, setUsers] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [isRefreshing, setIsRefreshing] = useState(false)
 
-  const [filterType, setFilterType] = useState('all')
+  const [filterType, setFilterType] = useState(defaultFilter)
   const [searchTerm, setSearchTerm] = useState('')
 
   const [showModal, setShowModal] = useState(false)
@@ -86,6 +86,10 @@ const Users = () => {
   useEffect(() => {
     fetchUsers()
   }, [])
+
+  useEffect(() => {
+    setFilterType(defaultFilter || 'all')
+  }, [defaultFilter])
 
   const handleRefresh = async () => {
     setIsRefreshing(true)
@@ -512,3 +516,4 @@ const Users = () => {
 }
 
 export default Users
+

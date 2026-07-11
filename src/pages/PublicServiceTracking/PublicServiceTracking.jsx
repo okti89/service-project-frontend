@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useParams, useSearchParams } from 'react-router-dom'
 import api from '../../api/api'
 import './PublicServiceTracking.css'
@@ -82,7 +82,7 @@ const PublicServiceTracking = () => {
     let ignore = false
 
     const fetchData = async () => {
-      if (!serviceId || !accessToken) {
+      if (!serviceId) {
         setError('Takip bağlantısı geçersiz.')
         setLoading(false)
         return
@@ -93,9 +93,7 @@ const PublicServiceTracking = () => {
 
       try {
         const [serviceResponse, companyResponse] = await Promise.all([
-          api.get(`/services/public-services/${serviceId}/`, {
-            params: { access_token: accessToken },
-          }),
+          api.get(`/services/public-services/${serviceId}/`),
           api.get('/config/public/company/').catch(() => ({ data: DEFAULT_COMPANY })),
         ])
 

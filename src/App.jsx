@@ -20,7 +20,10 @@ import {
   FaBell,
   FaPaperPlane,
   FaLightbulb,
-  FaSignOutAlt
+  FaSignOutAlt,
+  FaMapMarkerAlt,
+  FaUserClock,
+  FaCalendarCheck,
 } from 'react-icons/fa'
 import './App.css'
 import Landing from './pages/Home/Landing'
@@ -43,6 +46,7 @@ import Reports from './pages/Reports/Reports'
 import Payroll from './pages/Payroll/Payroll'
 import PublicServiceTracking from './pages/PublicServiceTracking/PublicServiceTracking'
 import GlobalSearchModal from './components/GlobalSearchModal'
+import PlaceholderPage from './components/PlaceholderPage'
 import Feed from './pages/Feed/Feed'
 import api from './api/api'
 
@@ -62,6 +66,46 @@ const resolveLogoUrl = (logoPath) => {
   }
 }
 
+const sidebarSections = [
+  {
+    title: 'Panel',
+    links: [
+      { to: '/dashboard', icon: FaHome, label: 'Ana Sayfa', match: (pathname) => pathname === '/dashboard' },
+      { to: '/dashboard/pending-users', icon: FaUserClock, label: 'Onay Bekleyenler', match: (pathname) => pathname.includes('/pending-users') },
+      { to: '/dashboard/customers', icon: FaUsers, label: 'Müşteriler', match: (pathname) => pathname.includes('/customers') },
+    ],
+  },
+  {
+    title: 'Teknisyen Yönetimi',
+    links: [
+      { to: '/dashboard/technicians', icon: FaUserCog, label: 'Teknisyenler', match: (pathname) => pathname.includes('/technicians') && !pathname.includes('/technician-') },
+      { to: '/dashboard/working-hours', icon: FaClock, label: 'Mesailer', match: (pathname) => pathname.includes('/working-hours') },
+      { to: '/dashboard/technician-locations', icon: FaMapMarkerAlt, label: 'Konumlar', match: (pathname) => pathname.includes('/technician-locations') },
+      { to: '/dashboard/technician-leaves', icon: FaCalendarCheck, label: 'İzinler', match: (pathname) => pathname.includes('/technician-leaves') },
+    ],
+  },
+  {
+    title: 'Operasyon',
+    links: [
+      { to: '/dashboard/services', icon: FaWrench, label: 'Servisler', match: (pathname) => pathname.includes('/services') },
+      { to: '/dashboard/inventory', icon: FaBoxes, label: 'Stok & Envanter', match: (pathname) => pathname.includes('/inventory') },
+      { to: '/dashboard/accounting', icon: FaMoneyCheckAlt, label: 'Finans & Muhasebe', match: (pathname) => pathname.includes('/accounting') },
+      { to: '/dashboard/payroll', icon: FaMoneyCheckAlt, label: 'Maaş Bordrosu', match: (pathname) => pathname.includes('/payroll') },
+      { to: '/dashboard/reporting', icon: FaChartLine, label: 'Raporlar', match: (pathname) => pathname.includes('/reporting') },
+    ],
+  },
+  {
+    title: 'Sistem',
+    links: [
+      { to: '/dashboard/users', icon: FaUserShield, label: 'Tüm Kullanıcılar', match: (pathname) => pathname.includes('/users') && !pathname.includes('/pending-users') },
+      { to: '/dashboard/inbox', icon: FaBell, label: 'Bildirimlerim', match: (pathname) => pathname.includes('/inbox') },
+      { to: '/dashboard/notifications', icon: FaPaperPlane, label: 'Kampanya & Duyuru', match: (pathname) => pathname.includes('/notifications') },
+      { to: '/dashboard/settings', icon: FaCog, label: 'Firma Ayarları', match: (pathname) => pathname.includes('/settings') },
+      { to: '/dashboard/feed', icon: FaBell, label: 'Haber Akışı', match: (pathname) => pathname.includes('/feed') },
+    ],
+  },
+]
+
 const Sidebar = ({ location, onFeedbackClick, brandName, brandLogo }) => (
   <div className="sidebar d-none d-lg-flex">
     <Link to="/dashboard" className="sidebar-brand">
@@ -78,54 +122,30 @@ const Sidebar = ({ location, onFeedbackClick, brandName, brandLogo }) => (
       {brandName || 'Serfix'}
     </Link>
     <div className="sidebar-nav">
-      <Link to="/dashboard" className={`sidebar-link ${location.pathname === '/dashboard' ? 'active' : ''}`}>
-        <FaHome /> Ana Sayfa
-      </Link>
-      <Link to="/dashboard/users" className={`sidebar-link ${location.pathname.includes('/users') ? 'active' : ''}`}>
-        <FaUserShield /> Kullanıcılar
-      </Link>
-      <Link to="/dashboard/services" className={`sidebar-link ${location.pathname.includes('/services') ? 'active' : ''}`}>
-        <FaWrench /> Servisler
-      </Link>
-      <Link to="/dashboard/inventory" className={`sidebar-link ${location.pathname.includes('/inventory') ? 'active' : ''}`}>
-        <FaBoxes /> Stok & Envanter
-      </Link>
-      <Link to="/dashboard/customers" className={`sidebar-link ${location.pathname.includes('/customers') ? 'active' : ''}`}>
-        <FaUsers /> Müşteriler
-      </Link>
-      <Link to="/dashboard/technicians" className={`sidebar-link ${location.pathname.includes('/technicians') ? 'active' : ''}`}>
-        <FaUserCog /> Teknisyenler
-      </Link>
-      <Link to="/dashboard/working-hours" className={`sidebar-link ${location.pathname.includes('/working-hours') ? 'active' : ''}`}>
-        <FaClock /> Mesai Saatleri
-      </Link>
-      <Link to="/dashboard/accounting" className={`sidebar-link ${location.pathname.includes('/accounting') ? 'active' : ''}`}>
-        <FaMoneyCheckAlt /> Muhasebe
-      </Link>
-      <Link to="/dashboard/payroll" className={`sidebar-link ${location.pathname.includes('/payroll') ? 'active' : ''}`}>
-        <FaMoneyCheckAlt /> Maaş Bordrosu
-      </Link>
-      <Link to="/dashboard/reporting" className={`sidebar-link ${location.pathname.includes('/reporting') ? 'active' : ''}`}>
-        <FaChartLine /> Raporlar
-      </Link>
-      <Link to="/dashboard/feed" className={`sidebar-link ${location.pathname.includes('/feed') ? 'active' : ''}`}>
-        <FaBell /> Haber Akışı
-      </Link>
-
-      <Link to="/dashboard/inbox" className={`sidebar-link ${location.pathname.includes('/inbox') ? 'active' : ''}`}>
-        <FaBell /> Bildirimlerim
-      </Link>
-      <Link to="/dashboard/notifications" className={`sidebar-link ${location.pathname.includes('/notifications') ? 'active' : ''}`}>
-        <FaPaperPlane /> Kampanya & Duyuru
-      </Link>
-      <Link to="/dashboard/settings" className={`sidebar-link ${location.pathname.includes('/settings') ? 'active' : ''}`}>
-        <FaCog /> Ayarlar
-      </Link>
+      {sidebarSections.map((section) => (
+        <div key={section.title} className="mb-2">
+          <div
+            className="px-3 pt-3 pb-2 text-uppercase text-white-50"
+            style={{ fontSize: '0.72rem', letterSpacing: '0.08em', fontWeight: 700 }}
+          >
+            {section.title}
+          </div>
+          {section.links.map((item) => {
+            const Icon = item.icon
+            const isActive = item.match(location.pathname)
+            return (
+              <Link key={item.to} to={item.to} className={`sidebar-link ${isActive ? 'active' : ''}`}>
+                <Icon /> {item.label}
+              </Link>
+            )
+          })}
+        </div>
+      ))}
 
       <div className="mt-auto mb-3">
-        <div 
-          onClick={onFeedbackClick} 
-          className="sidebar-link text-warning fw-bold mx-2 rounded-3" 
+        <div
+          onClick={onFeedbackClick}
+          className="sidebar-link text-warning fw-bold mx-2 rounded-3"
           style={{ cursor: 'pointer', backgroundColor: 'rgba(255, 193, 7, 0.1)' }}
         >
           <FaLightbulb className="me-2 text-warning" /> Öneri & Hata Bildir
@@ -139,8 +159,7 @@ const MainLayout = () => {
   const location = useLocation()
   const { user, logout } = useAuth()
   const { config } = useConfig()
-  
-  // Feedback State
+
   const [showFeedbackModal, setShowFeedbackModal] = useState(false)
   const [feedbackSubject, setFeedbackSubject] = useState('')
   const [feedbackMessage, setFeedbackMessage] = useState('')
@@ -159,7 +178,6 @@ const MainLayout = () => {
   const currentTime = now.toLocaleTimeString('tr-TR', {
     hour: '2-digit',
     minute: '2-digit',
-    
   })
 
   const openGlobalSearch = (query = '') => {
@@ -230,12 +248,7 @@ const MainLayout = () => {
                 <Navbar.Text className="text-white ms-3">
                   {user?.full_name || user?.email || 'Kullanıcı'}
                 </Navbar.Text>
-                <Button
-                  variant="outline-light"
-                  size="sm"
-                  className="ms-3"
-                  onClick={logout}
-                >
+                <Button variant="outline-light" size="sm" className="ms-3" onClick={logout}>
                   <FaSignOutAlt className="me-1" />
                   Çıkış
                 </Button>
@@ -249,39 +262,59 @@ const MainLayout = () => {
         </Container>
       </div>
 
-      {/* FEEDBACK MODAL */}
       <Modal show={showFeedbackModal} onHide={() => !feedbackSubmitting && setShowFeedbackModal(false)} centered>
-        <Form onSubmit={async (e) => {
-          e.preventDefault()
-          if (!feedbackMessage.trim()) {
-             import('react-hot-toast').then(m => m.default.error('Lütfen bir mesaj girin.')); return;
-          }
-          setFeedbackSubmitting(true)
-          try {
-            const { default: api } = await import('./api/api')
-            await api.post('/feedback/feedbacks/', { subject: feedbackSubject || 'Uygulama Geri Bildirimi', message: feedbackMessage })
-            import('react-hot-toast').then(m => m.default.success('Geri bildiriminiz başarıyla iletildi. Teşekkür ederiz!'))
-            setShowFeedbackModal(false)
-            setFeedbackSubject('')
-            setFeedbackMessage('')
-          } catch {
-            import('react-hot-toast').then(m => m.default.error('Bildirim gönderilirken bir hata oluştu.'))
-          } finally {
-            setFeedbackSubmitting(false)
-          }
-        }}>
+        <Form
+          onSubmit={async (event) => {
+            event.preventDefault()
+            if (!feedbackMessage.trim()) {
+              import('react-hot-toast').then((m) => m.default.error('Lütfen bir mesaj girin.'))
+              return
+            }
+            setFeedbackSubmitting(true)
+            try {
+              const { default: feedbackApi } = await import('./api/api')
+              await feedbackApi.post('/feedback/feedbacks/', {
+                subject: feedbackSubject || 'Uygulama Geri Bildirimi',
+                message: feedbackMessage,
+              })
+              import('react-hot-toast').then((m) => m.default.success('Geri bildiriminiz başarıyla iletildi. Teşekkür ederiz!'))
+              setShowFeedbackModal(false)
+              setFeedbackSubject('')
+              setFeedbackMessage('')
+            } catch {
+              import('react-hot-toast').then((m) => m.default.error('Bildirim gönderilirken bir hata oluştu.'))
+            } finally {
+              setFeedbackSubmitting(false)
+            }
+          }}
+        >
           <Modal.Header closeButton className="bg-light">
-            <Modal.Title className="fw-bold"><FaLightbulb className="me-2 text-warning"/>Öneri & Hata Bildir</Modal.Title>
+            <Modal.Title className="fw-bold"><FaLightbulb className="me-2 text-warning" />Öneri & Hata Bildir</Modal.Title>
           </Modal.Header>
           <Modal.Body className="p-4">
-            <p className="text-muted mb-4" style={{fontSize: '0.9rem'}}>Karşılaştığınız bir hatayı bildirmek veya uygulamanın gelişimi için bir fikir sunmak istiyorsanız formu kullanın. Mesajınız anında yöneticilere e-posta olarak ulaştırılır.</p>
+            <p className="text-muted mb-4" style={{ fontSize: '0.9rem' }}>
+              Karşılaştığınız bir hatayı bildirmek veya uygulamanın gelişimi için bir fikir sunmak istiyorsanız formu kullanın.
+              Mesajınız anında yöneticilere e-posta olarak ulaştırılır.
+            </p>
             <Form.Group className="mb-3">
               <Form.Label className="fw-bold">Konu</Form.Label>
-              <Form.Control type="text" placeholder="Örn: Stok Modülü Hatası / Yeni Özellik İsteği" value={feedbackSubject} onChange={e => setFeedbackSubject(e.target.value)} />
+              <Form.Control
+                type="text"
+                placeholder="Örn: Stok Modülü Hatası / Yeni Özellik İsteği"
+                value={feedbackSubject}
+                onChange={(event) => setFeedbackSubject(event.target.value)}
+              />
             </Form.Group>
             <Form.Group className="mb-3">
               <Form.Label className="fw-bold">Mesajınız *</Form.Label>
-              <Form.Control as="textarea" rows={5} placeholder="Detayları buraya yazınız..." required value={feedbackMessage} onChange={e => setFeedbackMessage(e.target.value)} />
+              <Form.Control
+                as="textarea"
+                rows={5}
+                placeholder="Detayları buraya yazınız..."
+                required
+                value={feedbackMessage}
+                onChange={(event) => setFeedbackMessage(event.target.value)}
+              />
             </Form.Group>
           </Modal.Body>
           <Modal.Footer>
@@ -298,7 +331,6 @@ const MainLayout = () => {
         initialQuery={globalSearchInitialQuery}
         onHide={() => setShowGlobalSearch(false)}
       />
-
     </div>
   )
 }
@@ -351,13 +383,6 @@ const GuestRoute = () => {
   return <Outlet />
 }
 
-const PlaceholderPage = ({ title }) => (
-  <div className="bg-white text-center p-5 shadow-sm rounded-3">
-    <h3 className="fw-bold text-primary">{title} Modülü</h3>
-    <p className="text-muted mt-2">Bu sayfanın arayüzü henüz kodlanmamıştır.</p>
-  </div>
-)
-
 function App() {
   return (
     <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
@@ -367,7 +392,6 @@ function App() {
             <Toaster position="top-right" />
             <Routes>
               <Route path="/" element={<Landing />} />
-
               <Route path="/login" element={<Login />} />
               <Route path="/service-tracking/:serviceId" element={<PublicServiceTracking />} />
 
@@ -381,12 +405,27 @@ function App() {
               <Route element={<ProtectedRoute />}>
                 <Route path="/dashboard" element={<NotificationProvider><MainLayout /></NotificationProvider>}>
                   <Route index element={<Dashboard />} />
+                  <Route path="pending-users" element={<Users defaultFilter="pending" />} />
+                  <Route path="users" element={<Users />} />
                   <Route path="customers" element={<Customers />} />
                   <Route path="inventory" element={<Inventory />} />
                   <Route path="services" element={<Services />} />
                   <Route path="technicians" element={<Technicians />} />
-                  <Route path="working-hours" element={<WorkingHours />} />
-                  <Route path="users" element={<Users />} />
+                  <Route path="working-hours" element={<WorkingHours defaultTab="shifts" />} />
+                  <Route path="technician-locations" element={<WorkingHours defaultTab="locations" />} />
+                  <Route
+                    path="technician-leaves"
+                    element={
+                      <PlaceholderPage
+                        title="Teknisyen İzinleri"
+                        description="İzin, devamsızlık ve saha dışı gün yönetimi için giriş noktası hazırlandı."
+                        links={[
+                          { to: '/dashboard/technicians', label: 'Teknisyenler' },
+                          { to: '/dashboard/working-hours', label: 'Mesailer' },
+                        ]}
+                      />
+                    }
+                  />
                   <Route path="accounting" element={<Accounting />} />
                   <Route path="payroll" element={<Payroll />} />
                   <Route path="reporting" element={<Reports />} />
@@ -407,4 +446,3 @@ function App() {
 }
 
 export default App
-
