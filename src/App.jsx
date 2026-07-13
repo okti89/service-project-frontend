@@ -46,6 +46,7 @@ import Accounting from './pages/Accounting/Accounting'
 import Reports from './pages/Reports/Reports'
 import Payroll from './pages/Payroll/Payroll'
 import PublicServiceTracking from './pages/PublicServiceTracking/PublicServiceTracking'
+import PrivacyPolicy from './pages/Public/PrivacyPolicy'
 import GlobalSearchModal from './components/GlobalSearchModal'
 import PlaceholderPage from './components/PlaceholderPage'
 import Feed from './pages/Feed/Feed'
@@ -74,6 +75,7 @@ const sidebarSections = [
     title: 'Panel',
     links: [
       { to: '/dashboard', icon: FaHome, label: 'Ana Sayfa', match: (pathname) => pathname === '/dashboard' },
+      { to: '/dashboard/services', icon: FaWrench, label: 'Servisler', match: (pathname) => pathname.includes('/services') },
       { to: '/dashboard/pending-users', icon: FaUserClock, label: 'Onay Bekleyenler', match: (pathname) => pathname.includes('/pending-users') },
       { to: '/dashboard/customers', icon: FaUsers, label: 'M' + c(252) + c(351) + 'teriler', match: (pathname) => pathname.includes('/customers') },
     ],
@@ -90,7 +92,6 @@ const sidebarSections = [
   {
     title: 'Operasyon',
     links: [
-      { to: '/dashboard/services', icon: FaWrench, label: 'Servisler', match: (pathname) => pathname.includes('/services') },
       { to: '/dashboard/inventory', icon: FaBoxes, label: 'Stok & Envanter', match: (pathname) => pathname.includes('/inventory') },
       { to: '/dashboard/accounting', icon: FaMoneyCheckAlt, label: 'Finans & Muhasebe', match: (pathname) => pathname.includes('/accounting') },
       { to: '/dashboard/payroll', icon: FaMoneyCheckAlt, label: 'Maa' + c(351) + ' Bordrosu', match: (pathname) => pathname.includes('/payroll') },
@@ -397,7 +398,7 @@ function App() {
             <Routes>
               <Route path="/" element={<Landing />} />
               <Route path="/login" element={<Login />} />
-              <Route path="/service-tracking/:serviceId" element={<PublicServiceTracking />} />
+              <Route path="/service-tracking/:serviceId" element={<PublicServiceTracking />} />`r`n              <Route path="/privacy-policy/" element={<PrivacyPolicy />} />
 
               <Route element={<GuestRoute />}>
                 <Route element={<AuthLayout />}>
