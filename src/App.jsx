@@ -47,6 +47,7 @@ import Reports from './pages/Reports/Reports'
 import Payroll from './pages/Payroll/Payroll'
 import PublicServiceTracking from './pages/PublicServiceTracking/PublicServiceTracking'
 import PrivacyPolicy from './pages/Public/PrivacyPolicy'
+import DeleteAccount from './pages/Public/DeleteAccount'
 import GlobalSearchModal from './components/GlobalSearchModal'
 import PlaceholderPage from './components/PlaceholderPage'
 import Feed from './pages/Feed/Feed'
@@ -398,7 +399,9 @@ function App() {
             <Routes>
               <Route path="/" element={<Landing />} />
               <Route path="/login" element={<Login />} />
-              <Route path="/service-tracking/:serviceId" element={<PublicServiceTracking />} />`r`n              <Route path="/privacy-policy/" element={<PrivacyPolicy />} />
+              <Route path="/service-tracking/:serviceId" element={<PublicServiceTracking />} />
+              <Route path="/privacy-policy/" element={<PrivacyPolicy />} />
+              <Route path="/delete-account/" element={<DeleteAccount />} />
 
               <Route element={<GuestRoute />}>
                 <Route element={<AuthLayout />}>
