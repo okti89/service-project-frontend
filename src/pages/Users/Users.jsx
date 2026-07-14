@@ -192,14 +192,14 @@ const Users = ({ defaultFilter = 'all' }) => {
     }
   }
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Bu kullanıcıyı silmek (pasife almak) istediğinize emin misiniz?')) return
+  const handleDeactivate = async (id) => {
+    if (!window.confirm('Bu kullanıcıyı pasife almak istediğinize emin misiniz?')) return
     try {
-      await api.delete(`/accounts/admin/users/${id}/`)
+      await api.patch(`/accounts/admin/users/${id}/`, { is_active: false })
       toast.success('Kullanıcı pasife alındı.')
       fetchUsers(true)
     } catch (error) {
-      toast.error(readApiError(error, 'Kullanıcı silinemedi.'))
+      toast.error(readApiError(error, 'Kullanıcı pasife alınamadı.'))
     }
   }
 
@@ -434,7 +434,7 @@ const Users = ({ defaultFilter = 'all' }) => {
                           <div className="d-inline-flex flex-wrap justify-content-end gap-1">
                             <Button variant="outline-primary" size="sm" onClick={() => openEditModal(user)}>Düzenle</Button>
                             {user.is_active ? (
-                              <Button variant="outline-danger" size="sm" onClick={() => handleDelete(user.id)}>Pasife Al</Button>
+                              <Button variant="outline-danger" size="sm" onClick={() => handleDeactivate(user.id)}>Pasife Al</Button>
                             ) : (
                               <Button variant="outline-success" size="sm" onClick={() => handleRestore(user.id)}>Aktif Et</Button>
                             )}

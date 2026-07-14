@@ -35,13 +35,17 @@ import toast from 'react-hot-toast'
 import ServiceDetailModal from '../../components/ServiceDetailModal'
 
 const defaultPermissions = {
-  can_view_customers: false,
-  can_create_service: false,
-  can_edit_service: false,
-  can_delete_service: false,
-  can_view_reports: false,
+  can_manage_customers: false,
   can_manage_inventory: false,
-  can_view_all_services: false,
+  can_manage_users: false,
+  can_manage_accounting: false,
+  can_manage_notifications: false,
+  can_manage_hr: false,
+  can_manage_reports: false,
+  can_manage_settings: false,
+  can_manage_services: false,
+  can_use_global_search: false,
+  can_manage_technicians: false,
 }
 
 function getTodayDate() {
@@ -130,13 +134,17 @@ function compareTechniciansTr(a, b) {
 
 function normalizePermissions(permissions) {
   return {
-    can_view_customers: Boolean(permissions?.can_view_customers),
-    can_create_service: Boolean(permissions?.can_create_service),
-    can_edit_service: Boolean(permissions?.can_edit_service),
-    can_delete_service: Boolean(permissions?.can_delete_service),
-    can_view_reports: Boolean(permissions?.can_view_reports),
+    can_manage_customers: Boolean(permissions?.can_manage_customers),
     can_manage_inventory: Boolean(permissions?.can_manage_inventory),
-    can_view_all_services: Boolean(permissions?.can_view_all_services),
+    can_manage_users: Boolean(permissions?.can_manage_users),
+    can_manage_accounting: Boolean(permissions?.can_manage_accounting),
+    can_manage_notifications: Boolean(permissions?.can_manage_notifications),
+    can_manage_hr: Boolean(permissions?.can_manage_hr),
+    can_manage_reports: Boolean(permissions?.can_manage_reports),
+    can_manage_settings: Boolean(permissions?.can_manage_settings),
+    can_manage_services: Boolean(permissions?.can_manage_services),
+    can_use_global_search: Boolean(permissions?.can_use_global_search),
+    can_manage_technicians: Boolean(permissions?.can_manage_technicians),
   }
 }
 
@@ -182,13 +190,17 @@ function mergeStatusOptions(list = []) {
 }
 
 const permissionLabels = [
-  { key: 'can_view_customers', label: 'Müşterileri görebilir' },
-  { key: 'can_create_service', label: 'Servis kaydı oluşturabilir' },
-  { key: 'can_edit_service', label: 'Servis kaydı düzenleyebilir' },
-  { key: 'can_delete_service', label: 'Servis kaydı silebilir' },
-  { key: 'can_view_reports', label: 'Raporları görebilir' },
+  { key: 'can_manage_services', label: 'Servisleri yönetebilir' },
+  { key: 'can_manage_customers', label: 'Müşterileri yönetebilir' },
   { key: 'can_manage_inventory', label: 'Envanteri yönetebilir' },
-  { key: 'can_view_all_services', label: 'Tüm servisleri görebilir' },
+  { key: 'can_manage_users', label: 'Kullanıcıları yönetebilir' },
+  { key: 'can_manage_technicians', label: 'Teknisyenleri yönetebilir' },
+  { key: 'can_manage_accounting', label: 'Muhasebeyi yönetebilir' },
+  { key: 'can_manage_hr', label: 'İnsan kaynaklarını yönetebilir' },
+  { key: 'can_manage_reports', label: 'Raporları yönetebilir' },
+  { key: 'can_manage_notifications', label: 'Bildirimleri yönetebilir' },
+  { key: 'can_manage_settings', label: 'Ayarları yönetebilir' },
+  { key: 'can_use_global_search', label: 'Genel aramayı kullanabilir' },
 ]
 
 // We will fetch status options from backend dynamically now.

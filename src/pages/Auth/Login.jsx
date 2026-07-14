@@ -21,9 +21,9 @@ import {
 const LAST_LOGIN_EMAIL_KEY = 'last-login-email'
 
 const featureHighlights = [
-  { icon: <FaShieldAlt />, text: 'SSL şifreli güvenli bağlantı' },
-  { icon: <FaCloud />, text: 'Bulut tabanlı 7/24 erişim' },
-  { icon: <FaMobileAlt />, text: 'Mobil uyumlu arayüz' },
+  { icon: <FaWrench />, text: 'Servis kayıtlarını ve iş emirlerini yönetin' },
+  { icon: <FaCheckCircle />, text: 'Servis formu ve PDF belgelerini paylaşın' },
+  { icon: <FaChartLine />, text: 'Tahsilat ve finansal takibi tek ekranda yapın' },
 ]
 
 const Login = () => {
