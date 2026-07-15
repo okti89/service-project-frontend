@@ -8,7 +8,7 @@ import {
   FaWrench,
 } from 'react-icons/fa'
 
-const downloadUrl = 'https://pub-8309817c367046ac85612c98a82038cb.r2.dev/servis%20y%C3%B6netim.apk'
+const downloadUrl = 'https://drive.google.com/uc?export=download&id=1RHptg_j7aiP-Yp21YEoFfFm68pqHFe7x'
 
 const steps = [
   ['1', 'APK dosyasını indirin', 'İndirme başladığında dosyanın tamamlanmasını bekleyin.'],
