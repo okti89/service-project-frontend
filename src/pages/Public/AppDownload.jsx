@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import {
   FaAndroid,
+  FaApple,
   FaArrowRight,
   FaCheckCircle,
   FaCloudDownloadAlt,
@@ -8,11 +9,11 @@ import {
   FaWrench,
 } from 'react-icons/fa'
 
-const downloadUrl = 'https://drive.google.com/uc?export=download&id=1RHptg_j7aiP-Yp21YEoFfFm68pqHFe7x'
+const downloadUrl = 'https://play.google.com/store/apps/details?id=com.servis.asistani'
 
 const steps = [
-  ['1', 'APK dosyasını indirin', 'İndirme başladığında dosyanın tamamlanmasını bekleyin.'],
-  ['2', 'Dosyayı açın', 'İndirilen APK dosyasına dokunarak kurulumu başlatın.'],
+  ['1', 'Google Play uygulamasını açın', 'İndirme butonu sizi resmi mağaza sayfamıza yönlendirir.'],
+  ['2', 'Uygulamayı yükleyin', 'Google Play üzerinden güvenli şekilde kurulumu tamamlayın.'],
   ['3', 'Uygulamayı kullanın', 'Giriş yapın ve servis operasyonlarınızı mobilde yönetin.'],
 ]
 
@@ -46,11 +47,11 @@ export default function AppDownload() {
             </p>
             <div className="d-flex flex-column flex-sm-row gap-3 align-items-sm-center">
               <a href={downloadUrl} className="btn d-inline-flex align-items-center justify-content-center gap-3 px-4 py-3" style={{ borderRadius: 14, border: 0, background: '#51d2bd', color: '#07252d', fontWeight: 850, fontSize: '1.02rem', boxShadow: '0 15px 32px rgba(16, 176, 151, 0.24)' }}>
-                <FaCloudDownloadAlt size={21} /> Android için indir
+                <FaCloudDownloadAlt size={21} /> Google Play'den indir
               </a>
-              <span className="d-inline-flex align-items-center gap-2" style={{ color: '#86a8ad', fontSize: 13 }}><FaShieldAlt color="#77d8c7" /> Güvenli APK kurulumu</span>
+              <span className="d-inline-flex align-items-center gap-2" style={{ color: '#86a8ad', fontSize: 13 }}><FaShieldAlt color="#77d8c7" /> Resmi mağaza kurulumu</span>
             </div>
-            <p className="mt-3 mb-0" style={{ color: '#78999f', fontSize: 12.5 }}>İndirme bağlantısı Google Drive üzerinden sunulur. Kurulum, yalnızca Android cihazlarda desteklenir.</p>
+            <div className="mt-3 d-flex align-items-center gap-2" style={{ color: '#78999f', fontSize: 12.5 }}><FaApple size={16} /> App Store sürümü yakında.</div>
           </div>
 
           <div className="col-lg-5">
