@@ -8,6 +8,7 @@ const LEGACY_AUTH_TOKEN_KEY = 'auth_token'
 const AUTH_USER_KEY = 'auth-user'
 const TENANT_CODE_KEY = 'tenant-code'
 const AUTH_UNAUTHORIZED_EVENT = 'auth:unauthorized'
+const AUTH_SUBSCRIPTION_EXPIRED_EVENT = 'auth:subscription-expired'
 
 const AuthContext = createContext(null)
 
@@ -136,8 +137,29 @@ export function AuthProvider({ children }) {
       setIsLoading(false)
     }
 
+    const handleSubscriptionExpired = (event) => {
+      const storedUser = readStoredUser()
+      if (!storedUser) return
+
+      const expiredUser = {
+        ...storedUser,
+        subscription: event?.detail?.subscription || {
+          ...storedUser.subscription,
+          status: 'expired',
+          is_active: false,
+        },
+      }
+      localStorage.setItem(AUTH_USER_KEY, JSON.stringify(expiredUser))
+      setUser(expiredUser)
+      setIsLoading(false)
+    }
+
     window.addEventListener(AUTH_UNAUTHORIZED_EVENT, handleUnauthorized)
-    return () => window.removeEventListener(AUTH_UNAUTHORIZED_EVENT, handleUnauthorized)
+    window.addEventListener(AUTH_SUBSCRIPTION_EXPIRED_EVENT, handleSubscriptionExpired)
+    return () => {
+      window.removeEventListener(AUTH_UNAUTHORIZED_EVENT, handleUnauthorized)
+      window.removeEventListener(AUTH_SUBSCRIPTION_EXPIRED_EVENT, handleSubscriptionExpired)
+    }
   }, [clearAuthState])
 
   const login = useCallback(async (email, password) => {

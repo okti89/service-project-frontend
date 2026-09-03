@@ -56,6 +56,11 @@ api.interceptors.response.use(
             clearStoredAuth()
             window.dispatchEvent(new CustomEvent('auth:unauthorized'))
         }
+        if (status === 403 && error.response?.data?.account_status === 'subscription_expired') {
+            window.dispatchEvent(new CustomEvent('auth:subscription-expired', {
+                detail: { subscription: error.response.data.subscription },
+            }))
+        }
         return Promise.reject(error)
     }
 )

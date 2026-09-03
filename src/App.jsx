@@ -31,6 +31,7 @@ import Dashboard from './pages/Home/Dashboard'
 import Login from './pages/Auth/Login'
 import ForgotPassword from './pages/Auth/ForgotPassword'
 import ResetPassword from './pages/Auth/ResetPassword'
+import SubscriptionExpired from './pages/Auth/SubscriptionExpired'
 import Customers from './pages/Customers/Customers'
 import Inventory from './pages/Inventory/Inventory'
 import Settings from './pages/Config/Settings'
@@ -72,6 +73,33 @@ const resolveLogoUrl = (logoPath) => {
   }
 }
 
+const TrialStatusBadge = ({ subscription }) => {
+  if (subscription?.status !== 'trial' || subscription?.is_active !== true) {
+    return null
+  }
+
+  const remainingDays = Number(subscription.days_remaining)
+  const isEndingSoon = remainingDays <= 2
+  const endDate = subscription.ends_at
+    ? new Intl.DateTimeFormat('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' }).format(
+      new Date(`${subscription.ends_at}T12:00:00`)
+    )
+    : null
+
+  const label = remainingDays === 0
+    ? 'Deneme: son gün'
+    : `Deneme: ${remainingDays} gün kaldı`
+
+  return (
+    <span
+      className={`subscription-trial-badge ${isEndingSoon ? 'subscription-trial-badge--warning' : ''}`}
+      title={endDate ? `Deneme üyeliği ${endDate} tarihinde sona erer.` : 'Deneme üyeliğiniz aktif.'}
+    >
+      <FaClock aria-hidden="true" />
+      {label}
+    </span>
+  )
+}
 const sidebarSections = [
   {
     title: 'Panel',
@@ -247,6 +275,7 @@ const MainLayout = () => {
                 </Form>
               </Nav>
               <Nav>
+                <TrialStatusBadge subscription={user?.subscription} />
                 <Navbar.Text className="text-white d-flex flex-row align-items-center gap-2 lh-sm">
                   <span className="fw-bold fs-6">{today}</span>
                   <span className="small text-white-50">{currentTime}</span>
@@ -354,7 +383,7 @@ const AuthLayout = () => (
 )
 
 const ProtectedRoute = () => {
-  const { isAuthenticated, isLoading } = useAuth()
+  const { user, isAuthenticated, isLoading } = useAuth()
   const location = useLocation()
 
   if (isLoading) {
@@ -369,11 +398,15 @@ const ProtectedRoute = () => {
     return <Navigate to="/login" state={{ from: location }} replace />
   }
 
+  if (user?.subscription?.is_active === false) {
+    return <SubscriptionExpired />
+  }
+
   return <Outlet />
 }
 
 const GuestRoute = () => {
-  const { isAuthenticated, isLoading } = useAuth()
+  const { user, isAuthenticated, isLoading } = useAuth()
 
   if (isLoading) {
     return (
