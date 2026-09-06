@@ -5,6 +5,9 @@ const LEGACY_AUTH_TOKEN_KEY = 'auth_token'
 const AUTH_USER_KEY = 'auth-user'
 const TENANT_CODE_KEY = 'tenant-code'
 
+const devMode = true
+const devUrl = 'http://192.168.1.5:8000/api'
+
 const readStoredToken = () => {
     return localStorage.getItem(AUTH_TOKEN_KEY) || localStorage.getItem(LEGACY_AUTH_TOKEN_KEY)
 }
@@ -17,7 +20,7 @@ const clearStoredAuth = () => {
 }
 
 const api = axios.create({
-    baseURL: 'https://imrpx8h1iihplrf4rs1ssbqo.5.75.152.139.sslip.io/api',
+    baseURL: devMode ? devUrl : 'https://imrpx8h1iihplrf4rs1ssbqo.5.75.152.139.sslip.io/api',
     headers: {
         'Content-Type': 'application/json',
     },

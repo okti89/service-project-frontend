@@ -83,30 +83,9 @@ const Login = () => {
   }
 
   return (
-    <div
-      className="login-split"
-      style={{
-        minHeight: '100vh',
-        display: 'grid',
-        gridTemplateColumns: '1.05fr 1fr',
-        background: '#0d1e2d',
-        color: '#e6edf5',
-      }}
-    >
+    <div className="login-split">
       {/* SOL TARAF — MARKA & ÖZELLİKLER */}
-      <aside
-        className="login-aside"
-        style={{
-          position: 'relative',
-          padding: '3rem 3.5rem',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-between',
-          background:
-            'radial-gradient(circle at 20% 20%, rgba(33,150,243,0.25), transparent 50%), radial-gradient(circle at 80% 80%, rgba(76,175,80,0.15), transparent 50%), linear-gradient(160deg, #0d1e2d 0%, #142838 60%, #0b1a28 100%)',
-          overflow: 'hidden',
-        }}
-      >
+      <aside className="login-aside">
         <div
           aria-hidden
           style={{
@@ -253,25 +232,8 @@ const Login = () => {
       </aside>
 
       {/* SAĞ TARAF — FORM */}
-      <main
-        style={{
-          background: '#f5f7fb',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          padding: '2rem',
-        }}
-      >
-        <div
-          style={{
-            width: '100%',
-            maxWidth: '420px',
-            background: '#ffffff',
-            borderRadius: '16px',
-            padding: '2.5rem 2rem',
-            boxShadow: '0 20px 60px rgba(13, 30, 45, 0.18)',
-          }}
-        >
+      <main className="login-main">
+        <div className="login-card">
           <div style={{ textAlign: 'center', marginBottom: '1.75rem' }}>
             <h2 style={{ fontSize: '1.6rem', fontWeight: 700, color: '#12263a', margin: 0 }}>
               {config?.name || 'Servis Yönetimi'}

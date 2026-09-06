@@ -24,6 +24,7 @@ import {
   FaMapMarkerAlt,
   FaUserClock,
   FaCalendarCheck,
+  FaFileInvoiceDollar,
 } from 'react-icons/fa'
 import './App.css'
 import Landing from './pages/Home/Landing'
@@ -53,6 +54,7 @@ import AppDownload from './pages/Public/AppDownload'
 import GlobalSearchModal from './components/GlobalSearchModal'
 import PlaceholderPage from './components/PlaceholderPage'
 import Feed from './pages/Feed/Feed'
+import Quotes from './pages/Quotes/Quotes'
 import api from './api/api'
 
 const c = (...codes) => String.fromCharCode(...codes)
@@ -106,6 +108,7 @@ const sidebarSections = [
     links: [
       { to: '/dashboard', icon: FaHome, label: 'Ana Sayfa', match: (pathname) => pathname === '/dashboard' },
       { to: '/dashboard/services', icon: FaWrench, label: 'Servisler', match: (pathname) => pathname.includes('/services') },
+      { to: '/dashboard/quotes', icon: FaFileInvoiceDollar, label: 'Teklifler', match: (pathname) => pathname.includes('/quotes') },
       { to: '/dashboard/pending-users', icon: FaUserClock, label: 'Onay Bekleyenler', match: (pathname) => pathname.includes('/pending-users') },
       { to: '/dashboard/customers', icon: FaUsers, label: 'M' + c(252) + c(351) + 'teriler', match: (pathname) => pathname.includes('/customers') },
     ],
@@ -453,6 +456,7 @@ function App() {
                   <Route path="customers" element={<Customers />} />
                   <Route path="inventory" element={<Inventory />} />
                   <Route path="services" element={<Services />} />
+                  <Route path="quotes" element={<Quotes />} />
                   <Route path="technicians" element={<Technicians />} />
                   <Route path="working-hours" element={<WorkingHours defaultTab="shifts" />} />
                   <Route path="technician-locations" element={<WorkingHours defaultTab="locations" />} />

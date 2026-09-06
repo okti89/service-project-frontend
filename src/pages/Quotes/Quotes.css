@@ -1,0 +1,410 @@
+.quotes-page {
+  color: #172033;
+}
+
+.quotes-header,
+.quotes-toolbar,
+.quote-items-heading,
+.quote-form-total,
+.quote-detail-total,
+.quote-mobile-topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.quotes-header {
+  margin-bottom: 1.25rem;
+  color: #fff;
+}
+
+.quotes-header h1 {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin: 0;
+  font-size: 1.65rem;
+  font-weight: 750;
+}
+
+.quotes-header p {
+  margin: 0.35rem 0 0;
+  color: #b9c8d5;
+}
+
+.quotes-header .btn,
+.quote-items-heading .btn,
+.quote-actions .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+.quotes-toolbar {
+  margin-bottom: 0.75rem;
+}
+
+.quotes-toolbar .input-group {
+  width: min(100%, 430px);
+}
+
+.quotes-toolbar > span {
+  color: #c9d5df;
+  font-size: 0.88rem;
+}
+
+.quotes-table-card {
+  overflow: hidden;
+  border: 0;
+  border-radius: 8px;
+  box-shadow: 0 10px 28px rgba(7, 20, 31, 0.18);
+}
+
+.quotes-table-card thead th {
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid #dce3ea;
+  background: #f4f7fa;
+  color: #526173;
+  font-size: 0.76rem;
+  font-weight: 750;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.quotes-table-card tbody td {
+  padding: 0.85rem 1rem;
+}
+
+.quotes-table-card td small {
+  display: block;
+  margin-top: 0.15rem;
+  color: #718096;
+}
+
+.quote-number {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #1769d2;
+  font-weight: 700;
+}
+
+.quote-number:hover {
+  text-decoration: underline;
+}
+
+.quote-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.35rem;
+}
+
+.quote-actions--compact {
+  flex-wrap: nowrap;
+}
+
+.quote-actions--compact .btn {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+}
+
+.quotes-state {
+  min-height: 280px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  padding: 2rem;
+  color: #718096;
+  text-align: center;
+}
+
+.quotes-state > svg {
+  font-size: 2rem;
+}
+
+.quotes-mobile-list {
+  display: none;
+}
+
+.quote-form-body {
+  background: #f6f8fb;
+}
+
+.quote-form-body .form-label {
+  color: #344054;
+  font-size: 0.86rem;
+  font-weight: 650;
+}
+
+.quote-items-heading {
+  margin-bottom: 0.75rem;
+}
+
+.quote-items-heading h2 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 750;
+}
+
+.quote-items-heading span {
+  color: #667085;
+  font-size: 0.82rem;
+}
+
+.quote-item-list {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.quote-item-row {
+  display: grid;
+  grid-template-columns: 30px minmax(150px, 1.1fr) minmax(150px, 1.2fr) minmax(150px, 1.2fr) 80px 120px 125px 38px;
+  gap: 0.55rem;
+  align-items: end;
+  padding: 0.75rem;
+  border: 1px solid #dde4ec;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.quote-item-index {
+  align-self: center;
+  color: #667085;
+  font-weight: 700;
+  text-align: center;
+}
+
+.quote-item-row .form-label {
+  margin-bottom: 0.3rem;
+  font-size: 0.72rem;
+}
+
+.quote-item-total {
+  min-height: 38px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: right;
+}
+
+.quote-item-total span {
+  color: #667085;
+  font-size: 0.68rem;
+}
+
+.quote-item-total strong {
+  font-size: 0.9rem;
+}
+
+.quote-item-remove {
+  width: 38px;
+  height: 38px;
+  padding: 0;
+}
+
+.quote-form-total,
+.quote-detail-total {
+  width: min(100%, 360px);
+  margin: 1rem 0 0 auto;
+  padding: 0.85rem 1rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.quote-form-total strong,
+.quote-detail-total strong {
+  color: #1769d2;
+  font-size: 1.25rem;
+}
+
+.quote-detail-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.quote-detail-summary > div,
+.quote-detail-note {
+  padding: 0.75rem;
+  border: 1px solid #e1e7ef;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+
+.quote-detail-summary span,
+.quote-detail-note > span {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: #667085;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.quote-detail-note {
+  margin-bottom: 1rem;
+}
+
+.quote-detail-note p {
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.quote-detail-table thead th {
+  background: #f4f7fa;
+  color: #526173;
+  font-size: 0.76rem;
+  white-space: nowrap;
+}
+
+.quote-detail-actions {
+  justify-content: flex-end;
+}
+
+@media (max-width: 1199.98px) {
+  .quote-item-row {
+    grid-template-columns: 30px repeat(2, minmax(180px, 1fr));
+  }
+
+  .quote-item-description,
+  .quote-item-quantity,
+  .quote-item-price,
+  .quote-item-total,
+  .quote-item-remove {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .quotes-header {
+    align-items: flex-start;
+  }
+
+  .quotes-header h1 {
+    font-size: 1.35rem;
+  }
+
+  .quotes-header p {
+    display: none;
+  }
+
+  .quotes-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .quotes-toolbar .input-group {
+    width: 100%;
+  }
+
+  .quotes-desktop-table {
+    display: none;
+  }
+
+  .quotes-mobile-list {
+    display: grid;
+  }
+
+  .quote-mobile-card {
+    border-bottom: 1px solid #e4e9ef;
+  }
+
+  .quote-mobile-card:last-child {
+    border-bottom: 0;
+  }
+
+  .quote-mobile-main {
+    width: 100%;
+    display: grid;
+    gap: 0.3rem;
+    padding: 1rem;
+    border: 0;
+    background: #fff;
+    color: #172033;
+    text-align: left;
+  }
+
+  .quote-mobile-customer {
+    font-weight: 650;
+  }
+
+  .quote-mobile-meta {
+    color: #718096;
+    font-size: 0.8rem;
+  }
+
+  .quote-mobile-main > b {
+    margin-top: 0.2rem;
+    color: #1769d2;
+    font-size: 1.1rem;
+  }
+
+  .quote-mobile-card > .quote-actions {
+    padding: 0 1rem 1rem;
+    justify-content: flex-start;
+  }
+
+  .quote-item-row {
+    grid-template-columns: 28px 1fr 38px;
+  }
+
+  .quote-item-product,
+  .quote-item-name,
+  .quote-item-description,
+  .quote-item-quantity,
+  .quote-item-price,
+  .quote-item-total {
+    grid-column: 2;
+  }
+
+  .quote-item-index {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .quote-item-remove {
+    grid-column: 3;
+    grid-row: 1;
+  }
+
+  .quote-item-total {
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .quote-detail-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .quote-detail-actions .quote-actions {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .quote-detail-actions .quote-actions .btn {
+    flex: 1 1 auto;
+  }
+}
+
+@media (max-width: 420px) {
+  .quotes-header {
+    flex-direction: column;
+  }
+
+  .quotes-header .btn {
+    width: 100%;
+  }
+
+  .quote-detail-summary {
+    grid-template-columns: 1fr;
+  }
+}
