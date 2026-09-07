@@ -171,12 +171,15 @@ const Quotes = () => {
     setForm((current) => {
       const items = current.items.map((item, itemIndex) => {
         if (itemIndex !== index) return item
-        if (field === 'product') {
-          const product = products.find((entry) => String(entry.id) === String(value))
+        if (field === 'name') {
+          const normalizedValue = value.trim().toLocaleLowerCase('tr-TR')
+          const product = products.find(
+            (entry) => entry.name?.trim().toLocaleLowerCase('tr-TR') === normalizedValue,
+          )
           return {
             ...item,
-            product: value,
-            name: product?.name || item.name,
+            product: product ? String(product.id) : '',
+            name: value,
             description: product?.description || item.description,
             unit_price: product?.price ?? item.unit_price,
           }
@@ -208,7 +211,7 @@ const Quotes = () => {
       return
     }
     if (form.items.some((item) => !item.name.trim() || Number(item.quantity) <= 0 || item.unit_price === '')) {
-      toast.error('Teklif kalemlerini eksiksiz doldurun.')
+      toast.error('Teklif işlemlerini eksiksiz doldurun.')
       return
     }
 
@@ -487,7 +490,7 @@ const Quotes = () => {
                         <Badge bg={state.bg}>{state.label}</Badge>
                       </span>
                       <span className="quote-mobile-customer">{quote.customer_detail?.full_name || '-'}</span>
-                      <span className="quote-mobile-meta">{formatDate(quote.created_at)} · {quote.items?.length || 0} kalem</span>
+                      <span className="quote-mobile-meta">{formatDate(quote.created_at)} · {quote.items?.length || 0} işlem</span>
                       <b>{money(quote.total_price)}</b>
                     </button>
                     {actionButtons(quote, true)}
@@ -531,11 +534,11 @@ const Quotes = () => {
 
             <div className="quote-items-heading">
               <div>
-                <h2>Teklif Kalemleri</h2>
-                <span>Ürün seçebilir veya serbest bir işlem yazabilirsiniz.</span>
+                <h2>Teklif İşlemleri</h2>
+                <span>İşlem adını yazın veya kayıtlı ürünlerden birini seçin.</span>
               </div>
               <Button variant="outline-primary" size="sm" type="button" onClick={() => setForm((current) => ({ ...current, items: [...current.items, newItem()] }))}>
-                <FaPlus /> Kalem Ekle
+                <FaPlus /> İşlem Ekle
               </Button>
             </div>
 
@@ -543,16 +546,18 @@ const Quotes = () => {
               {form.items.map((item, index) => (
                 <div className="quote-item-row" key={index}>
                   <div className="quote-item-index">{index + 1}</div>
-                  <Form.Group className="quote-item-product">
-                    <Form.Label>Ürün</Form.Label>
-                    <Form.Select value={item.product} onChange={(event) => updateItem(index, 'product', event.target.value)}>
-                      <option value="">Serbest kalem</option>
-                      {products.map((product) => <option key={product.id} value={product.id}>{product.name} - {money(product.price)}</option>)}
-                    </Form.Select>
-                  </Form.Group>
                   <Form.Group className="quote-item-name">
-                    <Form.Label>Ürün / İşlem *</Form.Label>
-                    <Form.Control required value={item.name} onChange={(event) => updateItem(index, 'name', event.target.value)} />
+                    <Form.Label>İşlem Adı *</Form.Label>
+                    <Form.Control
+                      required
+                      list={`quote-products-${index}`}
+                      value={item.name}
+                      onChange={(event) => updateItem(index, 'name', event.target.value)}
+                      placeholder="İşlem yazın veya ürün seçin"
+                    />
+                    <datalist id={`quote-products-${index}`}>
+                      {products.map((product) => <option key={product.id} value={product.name}>{money(product.price)}</option>)}
+                    </datalist>
                   </Form.Group>
                   <Form.Group className="quote-item-description">
                     <Form.Label>Açıklama</Form.Label>
@@ -570,7 +575,7 @@ const Quotes = () => {
                     <span>Toplam</span>
                     <strong>{money(Number(item.quantity || 0) * Number(item.unit_price || 0))}</strong>
                   </div>
-                  <Button className="quote-item-remove" variant="outline-danger" type="button" onClick={() => removeItem(index)} disabled={form.items.length === 1} title="Kalemi sil">
+                  <Button className="quote-item-remove" variant="outline-danger" type="button" onClick={() => removeItem(index)} disabled={form.items.length === 1} title="İşlemi sil">
                     <FaTrash />
                   </Button>
                 </div>
@@ -604,7 +609,7 @@ const Quotes = () => {
               {detailQuote.note && <div className="quote-detail-note"><span>Not</span><p>{detailQuote.note}</p></div>}
               <div className="table-responsive">
                 <Table className="quote-detail-table align-middle">
-                  <thead><tr><th>Ürün / İşlem</th><th>Açıklama</th><th className="text-end">Adet</th><th className="text-end">Birim Fiyat</th><th className="text-end">Toplam</th></tr></thead>
+                  <thead><tr><th>İşlem</th><th>Açıklama</th><th className="text-end">Adet</th><th className="text-end">Birim Fiyat</th><th className="text-end">Toplam</th></tr></thead>
                   <tbody>{detailQuote.items.map((item) => <tr key={item.id}><td className="fw-semibold">{item.name}</td><td>{item.description || '-'}</td><td className="text-end">{item.quantity}</td><td className="text-end">{money(item.unit_price)}</td><td className="text-end fw-bold">{money(item.total_price)}</td></tr>)}</tbody>
                 </Table>
               </div>
