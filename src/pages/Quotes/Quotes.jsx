@@ -81,10 +81,26 @@ const getErrorMessage = (error, fallback) => {
   return fallback
 }
 
+const QUOTE_STATUS_OPTIONS = [
+  { value: 'draft', label: 'Taslak' },
+  { value: 'sent', label: 'Gönderildi' },
+  { value: 'cancelled', label: 'İptal Edildi' },
+]
+
+const quoteStatusValue = (quote) => {
+  if (quote.converted_service || quote.status === 'converted') return 'converted'
+  if (QUOTE_STATUS_OPTIONS.some((option) => option.value === quote.status)) return quote.status
+  return quote.sent_at ? 'sent' : 'draft'
+}
+
 const quoteState = (quote) => {
-  if (quote.converted_service) return { label: 'Servise dönüştürüldü', bg: 'success' }
-  if (quote.sent_at) return { label: 'Gönderildi', bg: 'primary' }
-  return { label: 'Taslak', bg: 'secondary' }
+  const states = {
+    draft: { label: 'Taslak', bg: 'secondary' },
+    sent: { label: 'Gönderildi', bg: 'primary' },
+    cancelled: { label: 'İptal Edildi', bg: 'danger' },
+    converted: { label: 'Servise Dönüştürüldü', bg: 'success' },
+  }
+  return states[quoteStatusValue(quote)]
 }
 
 const Quotes = () => {
@@ -355,6 +371,41 @@ const Quotes = () => {
     setConvertModal({ open: true, quote })
   }
 
+  const changeQuoteStatus = async (quote, nextStatus) => {
+    if (quoteStatusValue(quote) === nextStatus) return
+    setActionKey(`status-${quote.id}`)
+    try {
+      const response = await api.post(`/quotes/${quote.id}/set-status/`, { status: nextStatus })
+      setQuotes((current) => current.map((entry) => (entry.id === quote.id ? response.data : entry)))
+      setDetailQuote((current) => (current?.id === quote.id ? response.data : current))
+      toast.success(`Teklif durumu ${quoteState(response.data).label} olarak değiştirildi.`)
+    } catch (error) {
+      toast.error(getErrorMessage(error, 'Teklif durumu değiştirilemedi.'))
+    } finally {
+      setActionKey('')
+    }
+  }
+
+  const statusControl = (quote, className = '') => {
+    const value = quoteStatusValue(quote)
+    const converted = value === 'converted'
+    return (
+      <Form.Select
+        size="sm"
+        className={`quote-status-select ${className}`.trim()}
+        value={value}
+        disabled={converted || Boolean(actionKey)}
+        onClick={(event) => event.stopPropagation()}
+        onChange={(event) => changeQuoteStatus(quote, event.target.value)}
+        aria-label={`${quote.quote_number} teklif durumu`}
+      >
+        {converted
+          ? <option value="converted">Servise Dönüştürüldü</option>
+          : QUOTE_STATUS_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+      </Form.Select>
+    )
+  }
+
   const convertToService = async (event) => {
     event.preventDefault()
     const quote = convertModal.quote
@@ -389,14 +440,14 @@ const Quotes = () => {
         <FaEnvelope /> {!compact && 'E-posta'}
       </Button>
       {!quote.converted_service && (
-        <>
-          <Button variant="outline-warning" size="sm" onClick={() => openForm(quote)} disabled={Boolean(actionKey)} title="Düzenle">
-            <FaEdit /> {!compact && 'Düzenle'}
-          </Button>
+        <Button variant="outline-warning" size="sm" onClick={() => openForm(quote)} disabled={Boolean(actionKey)} title="Düzenle">
+          <FaEdit /> {!compact && 'Düzenle'}
+        </Button>
+      )}
+      {!quote.converted_service && quoteStatusValue(quote) !== 'cancelled' && (
           <Button variant="outline-dark" size="sm" onClick={() => openConvert(quote)} disabled={Boolean(actionKey)} title="Servise dönüştür">
             <FaExchangeAlt /> {!compact && 'Servise Dönüştür'}
           </Button>
-        </>
       )}
       <Button variant="outline-danger" size="sm" onClick={() => deleteQuote(quote)} disabled={Boolean(actionKey)} title="Sil">
         <FaTrash />
@@ -459,7 +510,6 @@ const Quotes = () => {
                 </thead>
                 <tbody>
                   {filteredQuotes.map((quote) => {
-                    const state = quoteState(quote)
                     return (
                       <tr key={quote.id}>
                         <td><button className="quote-number" onClick={() => setDetailQuote(quote)}>{quote.quote_number}</button></td>
@@ -469,7 +519,7 @@ const Quotes = () => {
                         </td>
                         <td>{formatDate(quote.created_at)}</td>
                         <td>{formatDate(quote.valid_until)}</td>
-                        <td><Badge bg={state.bg}>{state.label}</Badge></td>
+                        <td>{statusControl(quote)}</td>
                         <td className="text-end fw-bold">{money(quote.total_price)}</td>
                         <td className="text-end">{actionButtons(quote, true)}</td>
                       </tr>
@@ -604,7 +654,7 @@ const Quotes = () => {
                 <div><span>Müşteri</span><strong>{detailQuote.customer_detail?.full_name || '-'}</strong></div>
                 <div><span>Telefon</span><strong>{detailQuote.customer_detail?.phone_number || '-'}</strong></div>
                 <div><span>Geçerlilik</span><strong>{formatDate(detailQuote.valid_until)}</strong></div>
-                <div><span>Durum</span><Badge bg={quoteState(detailQuote).bg}>{quoteState(detailQuote).label}</Badge></div>
+                <div><span>Durum</span>{statusControl(detailQuote, 'quote-status-select--detail')}</div>
               </div>
               {detailQuote.note && <div className="quote-detail-note"><span>Not</span><p>{detailQuote.note}</p></div>}
               <div className="table-responsive">
