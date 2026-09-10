@@ -31,7 +31,7 @@ import {
 import toast from 'react-hot-toast'
 
 import api from '../api/api'
-import { getServiceStatusMeta, SERVICE_STATUS_LIST } from '../constants/serviceStatuses'
+import { getServiceStatusLabel, getServiceStatusMeta, SERVICE_STATUS_LIST } from '../constants/serviceStatuses'
 
 function formatDateTime(value) {
   if (!value) return '-'
@@ -104,11 +104,12 @@ const ServiceDetailModal = ({ serviceId, initialService = null, show, onClose, o
   const fetchedOnceRef = useRef(false)
 
   const statusMeta = useMemo(() => {
-    return getServiceStatusMeta(service?.service_status, SERVICE_STATUS_LIST) || {
-      label: service?.service_status || '-',
+    const meta = getServiceStatusMeta(service?.service_status, SERVICE_STATUS_LIST) || {
+      label: 'Durum belirtilmedi',
       color: '#6B7280',
       badge: 'secondary',
     }
+    return { ...meta, label: getServiceStatusLabel(service, SERVICE_STATUS_LIST) }
   }, [service])
 
   const paymentSummary = useMemo(() => {

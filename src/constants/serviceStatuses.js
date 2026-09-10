@@ -44,8 +44,25 @@ export function getServiceStatusMeta(code, fallbackList = SERVICE_STATUS_LIST) {
   return (
     SERVICE_STATUS_MAP[code] ||
     fallbackList.find((item) => item.value === code) ||
-    { value: code, label: code, color: '#6B7280', badge: 'secondary', isTerminal: false }
+    { value: code, label: 'Durum belirtilmedi', color: '#6B7280', badge: 'secondary', isTerminal: false }
   )
+}
+
+export function getServiceStatusLabel(serviceOrCode, fallbackList = SERVICE_STATUS_LIST) {
+  if (serviceOrCode && typeof serviceOrCode === 'object') {
+    const displayValue = [
+      serviceOrCode.status_name,
+      serviceOrCode.service_status_display,
+      serviceOrCode.service_status_name,
+      serviceOrCode.status_display,
+      typeof serviceOrCode.status === 'object' ? (serviceOrCode.status?.name || serviceOrCode.status?.label) : null,
+    ].find((value) => String(value || '').trim())
+
+    if (displayValue) return String(displayValue).trim()
+    return getServiceStatusMeta(serviceOrCode.service_status, fallbackList)?.label || 'Durum belirtilmedi'
+  }
+
+  return getServiceStatusMeta(serviceOrCode, fallbackList)?.label || 'Durum belirtilmedi'
 }
 
 export function isActiveServiceStatus(code) {

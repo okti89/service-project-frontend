@@ -33,6 +33,7 @@ import { useNavigate } from 'react-router-dom'
 import api from '../../api/api'
 import toast from 'react-hot-toast'
 import ServiceDetailModal from '../../components/ServiceDetailModal'
+import { getServiceStatusLabel } from '../../constants/serviceStatuses'
 
 const defaultPermissions = {
   can_manage_customers: false,
@@ -1605,7 +1606,7 @@ const Technicians = () => {
                         <td>{svc.customer_full_name || '-'}</td>
                         <td>
                           <Badge bg="secondary">
-                            {svc.status_name || svc.service_status_display || svc.service_status_name || svc.service_status || '-'}
+                            {getServiceStatusLabel(svc)}
                           </Badge>
                         </td>
                         <td>{formatDateTime(svc.scheduled_date)}</td>

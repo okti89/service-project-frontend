@@ -26,6 +26,7 @@ import {
 import toast from 'react-hot-toast'
 
 import api from '../../api/api'
+import { getServiceStatusLabel } from '../../constants/serviceStatuses'
 
 const MONTH_OPTIONS = [
   { value: '', label: 'Tüm Aylar' },
@@ -651,13 +652,7 @@ function Reports() {
                           <td>
                             <span className={`badge px-2 py-1 rounded-pill ${service.is_completed ? 'bg-success-subtle text-success border border-success-subtle' : 'bg-warning-subtle text-warning border border-warning-subtle'}`} style={{ fontSize: '0.75rem' }}>
                               {(() => {
-                                const status = String(service.service_status || '').toLowerCase();
-                                if (status === 'assigned') return 'Atandı';
-                                if (status === 'unassigned') return 'Atanmadı';
-                                if (status === 'pending') return 'Beklemede';
-                                if (status === 'completed') return 'Tamamlandı';
-                                if (status === 'cancelled') return 'İptal Edildi';
-                                return service.service_status || (service.is_completed ? 'Tamamlandı' : 'Süreçte');
+                                return getServiceStatusLabel(service);
                               })()}
                             </span>
                           </td>
@@ -678,4 +673,3 @@ function Reports() {
 }
 
 export default Reports
-
