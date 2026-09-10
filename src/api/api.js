@@ -5,7 +5,7 @@ const LEGACY_AUTH_TOKEN_KEY = 'auth_token'
 const AUTH_USER_KEY = 'auth-user'
 const TENANT_CODE_KEY = 'tenant-code'
 
-const devMode = true
+const devMode = false
 const devUrl = 'http://192.168.1.5:8000/api'
 
 const readStoredToken = () => {
