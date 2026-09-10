@@ -96,7 +96,7 @@ function getPdfDownloadName(service) {
   return `Servis_Formu_${service?.receipt_number || id}.pdf`
 }
 
-const ServiceDetailModal = ({ serviceId, initialService = null, show, onClose, onUpdated }) => {
+const ServiceDetailModal = ({ serviceId, initialService = null, show, onClose, onUpdated, onDeleted }) => {
   const [service, setService] = useState(initialService)
   const [isLoading, setIsLoading] = useState(Boolean(serviceId))
   const [activeTab, setActiveTab] = useState('overview')
@@ -244,6 +244,26 @@ const ServiceDetailModal = ({ serviceId, initialService = null, show, onClose, o
     }
   }
 
+  const deleteService = async () => {
+    if (!service?.id || actionLoadingKey) return
+    const confirmed = window.confirm(
+      `#${service.receipt_number || '-'} numaralı servis kalıcı olarak silinecek. Bu işlem geri alınamaz.`,
+    )
+    if (!confirmed) return
+
+    setActionLoadingKey(`delete-${service.id}`)
+    try {
+      await api.delete(`/services/admin-services/${service.id}/`)
+      toast.success('Servis kaydı başarıyla silindi.')
+      if (typeof onDeleted === 'function') onDeleted(service.id)
+      closeAndReset()
+    } catch (error) {
+      toast.error(readApiError(error, 'Servis kaydı silinemedi.'))
+    } finally {
+      setActionLoadingKey('')
+    }
+  }
+
   return (
     <Modal show={show} onHide={closeAndReset} size="xl" dialogClassName="service-detail-modal">
       <Modal.Header closeButton className="bg-light align-items-start pb-3 border-bottom">
@@ -298,6 +318,14 @@ const ServiceDetailModal = ({ serviceId, initialService = null, show, onClose, o
                   disabled={actionLoadingKey === `wa-${service.id}`}
                 >
                   <FaWhatsapp className="me-1" /> WhatsApp
+                </Button>
+                <Button
+                  size="sm"
+                  variant="danger"
+                  onClick={deleteService}
+                  disabled={actionLoadingKey === `delete-${service.id}`}
+                >
+                  {actionLoadingKey === `delete-${service.id}` ? <Spinner animation="border" size="sm" /> : <><FaTrash className="me-1" /> Sil</>}
                 </Button>
               </div>
             </div>
@@ -378,9 +406,9 @@ const ServiceDetailModal = ({ serviceId, initialService = null, show, onClose, o
                         <span>Alınan</span>
                         <strong>{paymentSummary.paid.toLocaleString('tr-TR')} ₺</strong>
                       </div>
-                      <div className="service-kpi-card is-warning m-0 px-2 py-1">
-                        <span>Kalan</span>
-                        <strong>{paymentSummary.remaining.toLocaleString('tr-TR')} ₺</strong>
+                      <div className={`service-kpi-card ${paymentSummary.remaining > 0 ? 'is-warning' : 'is-success'} m-0 px-2 py-1`}>
+                        <span>{paymentSummary.remaining > 0 ? 'Kalan' : 'Durum'}</span>
+                        <strong>{paymentSummary.remaining > 0 ? `${paymentSummary.remaining.toLocaleString('tr-TR')} ₺` : 'Ödeme Tamamlandı'}</strong>
                       </div>
                       <div className="service-kpi-card is-neutral m-0 px-2 py-1">
                         <span>İşlem</span>
@@ -465,7 +493,11 @@ const ServiceDetailModal = ({ serviceId, initialService = null, show, onClose, o
                     <div><strong>Toplam:</strong> {paymentSummary.total.toLocaleString('tr-TR')} ₺</div>
                     <div><strong>Ödenen:</strong> {paymentSummary.paid.toLocaleString('tr-TR')} ₺</div>
                     <div className={paymentSummary.remaining > 0 ? 'text-danger fw-semibold' : 'text-success fw-semibold'}>
-                      <strong>Kalan:</strong> {paymentSummary.remaining.toLocaleString('tr-TR')} ₺
+                      {paymentSummary.remaining > 0 ? (
+                        <><strong>Kalan:</strong> {paymentSummary.remaining.toLocaleString('tr-TR')} ₺</>
+                      ) : (
+                        <strong>Ödeme Tamamlandı</strong>
+                      )}
                     </div>
                   </div>
                   <Table size="sm" className="m-0">

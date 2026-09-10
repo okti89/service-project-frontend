@@ -518,6 +518,8 @@ const Services = ({ renderAsModalOnly = false, initialServiceId = null, onCloseM
   const [deletingPaymentId, setDeletingPaymentId] = useState(null)
   const [deletingPhotoId, setDeletingPhotoId] = useState(null)
   const [deletingSignatureId, setDeletingSignatureId] = useState(null)
+  const [deleteServiceTarget, setDeleteServiceTarget] = useState(null)
+  const [isDeletingService, setIsDeletingService] = useState(false)
   const [inlineEdits, setInlineEdits] = useState({})
   const [inlineSavingId, setInlineSavingId] = useState('')
   const [actionLoadingKey, setActionLoadingKey] = useState('')
@@ -586,6 +588,22 @@ const Services = ({ renderAsModalOnly = false, initialServiceId = null, onCloseM
   const handleRefresh = async () => {
     await fetchAll(true)
     toast.success('Servis verileri yenilendi.')
+  }
+
+  const confirmDeleteService = async () => {
+    if (!deleteServiceTarget?.id || isDeletingService) return
+    setIsDeletingService(true)
+    try {
+      await api.delete(`/services/admin-services/${deleteServiceTarget.id}/`)
+      if (selectedService?.id === deleteServiceTarget.id) closeDetailModal()
+      setDeleteServiceTarget(null)
+      await fetchAll(true)
+      toast.success('Servis kaydı başarıyla silindi.')
+    } catch (error) {
+      toast.error(readApiError(error, 'Servis kaydı silinemedi.'))
+    } finally {
+      setIsDeletingService(false)
+    }
   }
 
   const modelOptions = useMemo(() => {
@@ -2213,6 +2231,7 @@ const Services = ({ renderAsModalOnly = false, initialServiceId = null, onCloseM
                                   <Button variant="outline-info" size="sm" className="service-row-action-btn" onClick={() => { setWarrantyServiceId(svc.id); setWarrantyMonths(24); setShowWarrantyModal(true); }} disabled={actionLoadingKey === `warranty-pdf-${svc.id}`} title="Garanti Belgesi" aria-label="Garanti Belgesi">Garanti</Button>
                                   <Button variant="outline-secondary" size="sm" className="service-row-action-btn" onClick={() => sendServiceFormEmail(svc)} disabled={actionLoadingKey === `mail-${svc.id}`} title="E-posta gönder" aria-label="E-posta gönder">E-posta</Button>
                                   <Button variant="outline-success" size="sm" className="service-row-action-btn" onClick={() => sendStatusWhatsApp(svc)} disabled={actionLoadingKey === `wa-${svc.id}`} title="WhatsApp bildir" aria-label="WhatsApp bildir">WhatsApp</Button>
+                                  <Button variant="outline-danger" size="sm" className="service-row-action-btn" onClick={() => setDeleteServiceTarget(svc)} title="Servisi sil" aria-label="Servisi sil"><FaTrash /></Button>
                                 </div>
                               </td>
                             </tr>
@@ -2596,6 +2615,9 @@ const Services = ({ renderAsModalOnly = false, initialServiceId = null, onCloseM
                     <Button size="sm" variant="outline-success" onClick={() => sendStatusWhatsApp(selectedService)} disabled={actionLoadingKey === `wa-${selectedService.id}`}>
                       <FaWhatsapp className="me-1" /> WhatsApp
                     </Button>
+                    <Button size="sm" variant="danger" onClick={() => setDeleteServiceTarget(selectedService)}>
+                      <FaTrash className="me-1" /> Sil
+                    </Button>
                   </div>
                 </div>
               )
@@ -2674,7 +2696,10 @@ const Services = ({ renderAsModalOnly = false, initialServiceId = null, onCloseM
                           <div className="d-grid" style={{ gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
                             <div className="service-kpi-card is-info m-0 px-2 py-1"><span>Toplam</span><strong>{paymentSummary.total.toLocaleString('tr-TR')} TL</strong></div>
                             <div className="service-kpi-card is-success m-0 px-2 py-1"><span>Alınan</span><strong>{paymentSummary.paid.toLocaleString('tr-TR')} TL</strong></div>
-                            <div className="service-kpi-card is-warning m-0 px-2 py-1"><span>Kalan</span><strong>{paymentSummary.remaining.toLocaleString('tr-TR')} TL</strong></div>
+                            <div className={`service-kpi-card ${paymentSummary.remaining > 0 ? 'is-warning' : 'is-success'} m-0 px-2 py-1`}>
+                              <span>{paymentSummary.remaining > 0 ? 'Kalan' : 'Durum'}</span>
+                              <strong>{paymentSummary.remaining > 0 ? `${paymentSummary.remaining.toLocaleString('tr-TR')} TL` : 'Ödeme Tamamlandı'}</strong>
+                            </div>
                             <div className="service-kpi-card is-neutral m-0 px-2 py-1"><span>İşlem</span><strong>{(selectedService.items || []).length}</strong></div>
                           </div>
                           <Card className="border-0 shadow-sm flex-grow-1">
@@ -2858,7 +2883,11 @@ const Services = ({ renderAsModalOnly = false, initialServiceId = null, onCloseM
                               <div><strong>Toplam:</strong> {paymentSummary.total.toLocaleString('tr-TR')} TL</div>
                               <div><strong>Ödenen:</strong> {paymentSummary.paid.toLocaleString('tr-TR')} TL</div>
                               <div className={paymentSummary.remaining > 0 ? 'text-danger fw-semibold' : 'text-success fw-semibold'}>
-                                <strong>Kalan:</strong> {paymentSummary.remaining.toLocaleString('tr-TR')} TL
+                                {paymentSummary.remaining > 0 ? (
+                                  <><strong>Kalan:</strong> {paymentSummary.remaining.toLocaleString('tr-TR')} TL</>
+                                ) : (
+                                  <strong>Ödeme Tamamlandı</strong>
+                                )}
                               </div>
                             </div>
                             <Form onSubmit={handlePaymentSubmit} className="mb-3">
@@ -3175,6 +3204,25 @@ const Services = ({ renderAsModalOnly = false, initialServiceId = null, onCloseM
         </Modal.Body>
       </Modal>
 
+      <Modal show={Boolean(deleteServiceTarget)} onHide={() => !isDeletingService && setDeleteServiceTarget(null)} centered backdrop="static">
+        <Modal.Header closeButton={!isDeletingService}>
+          <Modal.Title>Servisi Kalıcı Olarak Sil</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p className="mb-2">
+            <strong>#{deleteServiceTarget?.receipt_number || '-'}</strong> numaralı
+            {deleteServiceTarget?.customer_full_name ? ` ${deleteServiceTarget.customer_full_name} müşterisine ait` : ''} servis kaydı silinecek.
+          </p>
+          <div className="alert alert-danger mb-0">Bu işlem geri alınamaz. Bağlı işlem, ödeme, fotoğraf ve servis geçmişi de kaldırılır.</div>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setDeleteServiceTarget(null)} disabled={isDeletingService}>Vazgeç</Button>
+          <Button variant="danger" onClick={confirmDeleteService} disabled={isDeletingService}>
+            {isDeletingService ? <><Spinner animation="border" size="sm" className="me-2" />Siliniyor...</> : <><FaTrash className="me-1" />Kalıcı Olarak Sil</>}
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
       <Modal show={showTemplateModal} onHide={closeTemplateModal} centered>
         <Form onSubmit={submitTemplateModal}>
           <Modal.Header closeButton={!isSavingOperationTemplate}>
@@ -3239,6 +3287,4 @@ const Services = ({ renderAsModalOnly = false, initialServiceId = null, onCloseM
 }
 
 export default Services
-
-
 

@@ -4,7 +4,7 @@ import { ThemeProvider } from './context/ThemeContext'
 import { ConfigProvider, useConfig } from './context/ConfigContext'
 import { NotificationProvider } from './context/NotificationContext'
 import { AuthProvider, useAuth } from './context/AuthContext'
-import { Navbar, Nav, Container, Form, Button, FormControl, Modal, Spinner } from 'react-bootstrap'
+import { Navbar, Nav, Container, Form, Button, FormControl, Modal, Offcanvas, Spinner } from 'react-bootstrap'
 import { Toaster } from 'react-hot-toast'
 import {
   FaWrench,
@@ -25,6 +25,7 @@ import {
   FaUserClock,
   FaCalendarCheck,
   FaFileInvoiceDollar,
+  FaBars,
 } from 'react-icons/fa'
 import './App.css'
 import Landing from './pages/Home/Landing'
@@ -143,53 +144,98 @@ const sidebarSections = [
   },
 ]
 
-const Sidebar = ({ location, onFeedbackClick, brandName, brandLogo }) => (
-  <div className="sidebar d-none d-lg-flex">
-    <Link to="/dashboard" className="sidebar-brand">
-      {brandLogo ? (
-        <img
-          src={brandLogo}
-          alt={brandName || 'Serfix'}
-          className="me-2"
-          style={{ width: 28, height: 28, borderRadius: 6, objectFit: 'cover' }}
-        />
-      ) : (
-        <FaCog className="text-primary me-2" />
-      )}
-      {brandName || 'Serfix'}
-    </Link>
-    <div className="sidebar-nav">
-      {sidebarSections.map((section) => (
-        <div key={section.title} className="mb-2">
-          <div
-            className="px-3 pt-3 pb-2 text-uppercase text-white-50"
-            style={{ fontSize: '0.72rem', letterSpacing: '0.08em', fontWeight: 700 }}
-          >
-            {section.title}
-          </div>
-          {section.links.map((item) => {
-            const Icon = item.icon
-            const isActive = item.match(location.pathname)
-            return (
-              <Link key={item.to} to={item.to} className={`sidebar-link ${isActive ? 'active' : ''}`}>
-                <Icon /> {item.label}
-              </Link>
-            )
-          })}
-        </div>
-      ))}
-
-      <div className="mt-auto mb-3">
+const SidebarNavigation = ({ location, onFeedbackClick, onNavigate }) => (
+  <div className="sidebar-nav">
+    {sidebarSections.map((section) => (
+      <div key={section.title} className="mb-2">
         <div
-          onClick={onFeedbackClick}
-          className="sidebar-link text-warning fw-bold mx-2 rounded-3"
-          style={{ cursor: 'pointer', backgroundColor: 'rgba(255, 193, 7, 0.1)' }}
+          className="px-3 pt-3 pb-2 text-uppercase text-white-50"
+          style={{ fontSize: '0.72rem', letterSpacing: '0.08em', fontWeight: 700 }}
         >
-          <FaLightbulb className="me-2 text-warning" /> {c(214) + 'neri & Hata Bildir'}
+          {section.title}
         </div>
+        {section.links.map((item) => {
+          const Icon = item.icon
+          const isActive = item.match(location.pathname)
+          return (
+            <Link
+              key={item.to}
+              to={item.to}
+              className={`sidebar-link ${isActive ? 'active' : ''}`}
+              onClick={onNavigate}
+            >
+              <Icon /> {item.label}
+            </Link>
+          )
+        })}
       </div>
+    ))}
+
+    <div className="mt-auto mb-3">
+      <button
+        type="button"
+        onClick={() => {
+          onNavigate?.()
+          onFeedbackClick()
+        }}
+        className="sidebar-link sidebar-feedback-link text-warning fw-bold mx-2 rounded-3"
+      >
+        <FaLightbulb className="me-2 text-warning" /> {c(214) + 'neri & Hata Bildir'}
+      </button>
     </div>
   </div>
+)
+
+const Brand = ({ brandName, brandLogo, onClick, className = 'sidebar-brand' }) => (
+  <Link to="/dashboard" className={className} onClick={onClick}>
+    {brandLogo ? (
+      <img
+        src={brandLogo}
+        alt={brandName || 'Serfix'}
+        className="me-2"
+        style={{ width: 28, height: 28, borderRadius: 6, objectFit: 'cover' }}
+      />
+    ) : (
+      <FaCog className="text-primary me-2" />
+    )}
+    {brandName || 'Serfix'}
+  </Link>
+)
+
+const Sidebar = ({ location, onFeedbackClick, brandName, brandLogo }) => (
+  <aside className="sidebar d-none d-lg-flex">
+    <Brand brandName={brandName} brandLogo={brandLogo} />
+    <SidebarNavigation location={location} onFeedbackClick={onFeedbackClick} />
+  </aside>
+)
+
+const MobileSidebar = ({ show, onHide, location, onFeedbackClick, brandName, brandLogo }) => (
+  <Offcanvas
+    id="mobile-sidebar"
+    show={show}
+    onHide={onHide}
+    placement="start"
+    className="mobile-sidebar d-lg-none"
+    aria-labelledby="mobile-sidebar-title"
+  >
+    <Offcanvas.Header closeButton closeVariant="white">
+      <Offcanvas.Title id="mobile-sidebar-title" className="m-0">
+        <Brand
+          brandName={brandName}
+          brandLogo={brandLogo}
+          onClick={onHide}
+          className="mobile-sidebar-brand"
+        />
+      </Offcanvas.Title>
+    </Offcanvas.Header>
+    <Offcanvas.Body>
+      <SidebarNavigation
+        location={location}
+        onFeedbackClick={onFeedbackClick}
+        onNavigate={onHide}
+      />
+    </Offcanvas.Body>
+  </Offcanvas>
 )
 
 const MainLayout = () => {
@@ -204,6 +250,7 @@ const MainLayout = () => {
   const [showGlobalSearch, setShowGlobalSearch] = useState(false)
   const [globalSearchInitialQuery, setGlobalSearchInitialQuery] = useState('')
   const [topSearchQuery, setTopSearchQuery] = useState('')
+  const [showMobileSidebar, setShowMobileSidebar] = useState(false)
   const [now, setNow] = useState(new Date())
 
   const today = now.toLocaleDateString('tr-TR', {
@@ -244,18 +291,46 @@ const MainLayout = () => {
     }
   }, [])
 
+  useEffect(() => {
+    setShowMobileSidebar(false)
+  }, [location.pathname])
+
+  const brandName = config?.name
+  const brandLogo = resolveLogoUrl(config?.logo)
+
   return (
     <div className="app-layout">
       <Sidebar
         location={location}
         onFeedbackClick={() => setShowFeedbackModal(true)}
-        brandName={config?.name}
-        brandLogo={resolveLogoUrl(config?.logo)}
+        brandName={brandName}
+        brandLogo={brandLogo}
+      />
+
+      <MobileSidebar
+        show={showMobileSidebar}
+        onHide={() => setShowMobileSidebar(false)}
+        location={location}
+        onFeedbackClick={() => setShowFeedbackModal(true)}
+        brandName={brandName}
+        brandLogo={brandLogo}
       />
 
       <div className="main-content">
         <Navbar className="custom-navbar" expand="lg" variant="dark">
           <Container fluid className="px-4">
+            <Button
+              type="button"
+              variant="link"
+              className="mobile-sidebar-toggle d-lg-none"
+              onClick={() => setShowMobileSidebar(true)}
+              aria-label="Ana menüyü aç"
+              aria-controls="mobile-sidebar"
+              aria-expanded={showMobileSidebar}
+            >
+              <FaBars aria-hidden="true" />
+              <span>Menü</span>
+            </Button>
             <Navbar.Toggle aria-controls="top-nav" />
             <Navbar.Collapse id="top-nav">
               <Nav className="me-auto" style={{ flex: 1, maxWidth: '400px' }}>
@@ -409,7 +484,7 @@ const ProtectedRoute = () => {
 }
 
 const GuestRoute = () => {
-  const { user, isAuthenticated, isLoading } = useAuth()
+  const { isAuthenticated, isLoading } = useAuth()
 
   if (isLoading) {
     return (

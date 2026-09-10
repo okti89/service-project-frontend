@@ -486,6 +486,7 @@ const Customers = () => {
                 serviceId={selectedService?.id}
                 initialService={selectedService}
                 onClose={closeServiceDetail}
+                onDeleted={(serviceId) => setCustomerServices((current) => current.filter((service) => service.id !== serviceId))}
             />
         </div>
     );

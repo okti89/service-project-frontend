@@ -1629,6 +1629,7 @@ const Technicians = () => {
         serviceId={selectedServiceForDetail?.id}
         initialService={selectedServiceForDetail}
         onClose={closeServiceDetailModal}
+        onDeleted={(serviceId) => setTechnicianServices((current) => current.filter((service) => service.id !== serviceId))}
       />
 
       <style>{`
