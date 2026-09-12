@@ -26,6 +26,7 @@ import {
   FaCalendarCheck,
   FaFileInvoiceDollar,
   FaBars,
+  FaSearch,
 } from 'react-icons/fa'
 import './App.css'
 import Landing from './pages/Home/Landing'
@@ -318,21 +319,64 @@ const MainLayout = () => {
 
       <div className="main-content">
         <Navbar className="custom-navbar" expand="lg" variant="dark">
-          <Container fluid className="px-4">
-            <Button
-              type="button"
-              variant="link"
-              className="mobile-sidebar-toggle d-lg-none"
-              onClick={() => setShowMobileSidebar(true)}
-              aria-label="Ana menüyü aç"
-              aria-controls="mobile-sidebar"
-              aria-expanded={showMobileSidebar}
-            >
-              <FaBars aria-hidden="true" />
-              <span>Menü</span>
-            </Button>
-            <Navbar.Toggle aria-controls="top-nav" />
-            <Navbar.Collapse id="top-nav">
+          <Container fluid className="topbar-container px-3 px-lg-4">
+            <div className="mobile-topbar d-lg-none">
+              <div className="mobile-topbar-row">
+                <Button
+                  type="button"
+                  variant="link"
+                  className="mobile-sidebar-toggle"
+                  onClick={() => setShowMobileSidebar(true)}
+                  aria-label="Ana menüyü aç"
+                  aria-controls="mobile-sidebar"
+                  aria-expanded={showMobileSidebar}
+                >
+                  <FaBars aria-hidden="true" />
+                  <span>Menü</span>
+                </Button>
+
+                <div className="mobile-date-time" aria-label={`${today}, saat ${currentTime}`}>
+                  <FaClock aria-hidden="true" />
+                  <span className="mobile-date-time-copy">
+                    <strong>{currentTime}</strong>
+                    <small>{today}</small>
+                  </span>
+                </div>
+
+                <Button
+                  type="button"
+                  variant="outline-light"
+                  className="mobile-logout-button"
+                  onClick={logout}
+                  aria-label="Çıkış yap"
+                  title="Çıkış yap"
+                >
+                  <FaSignOutAlt aria-hidden="true" />
+                  <span>Çıkış</span>
+                </Button>
+              </div>
+
+              <Form
+                className="mobile-global-search"
+                onSubmit={(event) => {
+                  event.preventDefault()
+                  openGlobalSearch(topSearchQuery)
+                }}
+              >
+                <FaSearch className="mobile-search-icon" aria-hidden="true" />
+                <FormControl
+                  type="search"
+                  placeholder="Global ara..."
+                  className="search-input"
+                  aria-label="Global arama"
+                  value={topSearchQuery}
+                  onChange={(event) => setTopSearchQuery(event.target.value)}
+                  onClick={() => openGlobalSearch(topSearchQuery)}
+                />
+              </Form>
+            </div>
+
+            <Navbar.Collapse id="top-nav" className="d-none d-lg-flex">
               <Nav className="me-auto" style={{ flex: 1, maxWidth: '400px' }}>
                 <Form
                   className="d-flex w-100"

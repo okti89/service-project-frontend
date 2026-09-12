@@ -281,6 +281,91 @@ body {
   border-bottom: 1px solid rgba(255,255,255,0.05);
 }
 
+.topbar-container {
+  min-height: 60px;
+}
+
+.mobile-topbar {
+  width: 100%;
+  min-width: 0;
+}
+
+.mobile-topbar-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.mobile-date-time {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  color: #ffffff;
+}
+
+.mobile-date-time > svg {
+  flex: 0 0 auto;
+  color: #7dd3fc;
+}
+
+.mobile-date-time-copy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.mobile-date-time-copy strong {
+  font-size: 0.95rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.mobile-date-time-copy small {
+  max-width: 11rem;
+  overflow: hidden;
+  color: #9fb1c2;
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mobile-logout-button {
+  min-height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  border-radius: 6px;
+  font-weight: 700;
+}
+
+.mobile-global-search {
+  position: relative;
+  width: 100%;
+  margin-top: 0.65rem;
+}
+
+.mobile-global-search .search-input {
+  width: 100%;
+  min-height: 44px;
+  padding-left: 2.45rem;
+  border-radius: 6px;
+}
+
+.mobile-search-icon {
+  position: absolute;
+  top: 50%;
+  left: 0.9rem;
+  z-index: 1;
+  color: #8fa5b8;
+  pointer-events: none;
+  transform: translateY(-50%);
+}
+
 .custom-navbar .nav-link {
   color: #a0b2c3 !important;
   font-size: 0.9rem;
@@ -783,8 +868,40 @@ body {
 }
 
 @media (max-width: 991.98px) {
+  .custom-navbar {
+    padding: 0.7rem 0;
+  }
+
+  .topbar-container {
+    min-height: 0;
+  }
+
+  .mobile-sidebar-toggle {
+    margin-right: 0;
+  }
+
   .subscription-trial-badge {
     margin: 0.65rem 0;
+  }
+}
+
+@media (max-width: 390px) {
+  .mobile-topbar-row {
+    gap: 0.45rem;
+  }
+
+  .mobile-date-time-copy small {
+    max-width: 7.5rem;
+  }
+
+  .mobile-logout-button {
+    width: 42px;
+    padding-right: 0;
+    padding-left: 0;
+  }
+
+  .mobile-logout-button span {
+    display: none;
   }
 }
 
