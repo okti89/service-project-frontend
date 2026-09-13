@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useParams, useSearchParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import api from '../../api/api'
 import './PublicServiceTracking.css'
 
@@ -67,8 +67,6 @@ const DEFAULT_COMPANY = {
 
 const PublicServiceTracking = () => {
   const { serviceId } = useParams()
-  const [searchParams] = useSearchParams()
-  const accessToken = searchParams.get('access_token') || ''
 
   const [service, setService] = useState(null)
   const [company, setCompany] = useState(DEFAULT_COMPANY)
@@ -118,7 +116,7 @@ const PublicServiceTracking = () => {
     return () => {
       ignore = true
     }
-  }, [accessToken, serviceId])
+  }, [serviceId])
 
   useEffect(() => {
     return () => {
@@ -140,14 +138,13 @@ const PublicServiceTracking = () => {
   ]), [service])
 
   const loadPdfBlobUrl = async () => {
-    if (!serviceId || !accessToken) return ''
+    if (!serviceId) return ''
 
     setPdfLoading(true)
     setPdfError('')
 
     try {
       const response = await api.get(`/services/public-services/${serviceId}/form-pdf/`, {
-        params: { access_token: accessToken },
         responseType: 'blob',
       })
 
