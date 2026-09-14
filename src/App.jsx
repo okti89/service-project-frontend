@@ -24,6 +24,7 @@ import {
   FaMapMarkerAlt,
   FaUserClock,
   FaCalendarCheck,
+  FaClipboardList,
   FaFileInvoiceDollar,
   FaBars,
   FaSearch,
@@ -131,6 +132,8 @@ const sidebarSections = [
       { to: '/dashboard/accounting', icon: FaMoneyCheckAlt, label: 'Finans & Muhasebe', match: (pathname) => pathname.includes('/accounting') },
       { to: '/dashboard/payroll', icon: FaMoneyCheckAlt, label: 'Maa' + c(351) + ' Bordrosu', match: (pathname) => pathname.includes('/payroll') },
       { to: '/dashboard/reporting', icon: FaChartLine, label: 'Raporlar', match: (pathname) => pathname.includes('/reporting') },
+      { to: '/dashboard/reporting#daily-service-lists', icon: FaChartLine, label: 'Günlük İcmal', match: (pathname) => pathname.includes('/reporting') },
+      { to: '/dashboard/reporting#daily-service-lists', icon: FaClipboardList, label: 'Günlük Servis Listeleri', match: (pathname) => pathname.includes('/reporting') },
     ],
   },
   {

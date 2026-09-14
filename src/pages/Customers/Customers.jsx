@@ -4,9 +4,11 @@ import { FaPlus, FaUserTie, FaClipboardList, FaTools, FaSearch, FaTimes } from '
 import ServiceDetailModal from '../../components/ServiceDetailModal';
 import api from '../../api/api';
 import toast from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
 import { getServiceStatusLabel } from '../../constants/serviceStatuses';
 
 const Customers = () => {
+    const navigate = useNavigate();
     const [customers, setCustomers] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
@@ -191,6 +193,11 @@ const Customers = () => {
         setIsServicesLoading(false);
     };
 
+    const createServiceForCustomer = (customer) => {
+        if (!customer?.id) return;
+        navigate(`/dashboard/services?create_customer=${encodeURIComponent(customer.id)}`);
+    };
+
     const openServiceDetail = (service) => {
         closeServicesModal();
         setSelectedService(service);
@@ -329,6 +336,9 @@ const Customers = () => {
                                                         </Button>
                                                         <Button variant="outline-warning" size="sm" onClick={() => openServicesModal(c)}>
                                                             Servisler
+                                                        </Button>
+                                                        <Button variant="primary" size="sm" onClick={() => createServiceForCustomer(c)}>
+                                                            Servis Oluştur
                                                         </Button>
                                                         <Button variant="outline-primary" size="sm" onClick={() => handleShow(c)}>
                                                             Düzenle
@@ -472,6 +482,11 @@ const Customers = () => {
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={closeServicesModal}>Kapat</Button>
+                    {servicesModal.customer ? (
+                        <Button variant="primary" onClick={() => createServiceForCustomer(servicesModal.customer)}>
+                            <FaPlus className="me-1" /> Servis Oluştur
+                        </Button>
+                    ) : null}
                 </Modal.Footer>
             </Modal>
 

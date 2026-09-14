@@ -1422,6 +1422,30 @@ const Services = ({ renderAsModalOnly = false, initialServiceId = null, onCloseM
       return
     }
 
+    const requestedCustomerId = searchParams.get('create_customer')
+    if (requestedCustomerId) {
+      const selectedCustomer = customers.find((item) => String(item.id) === String(requestedCustomerId))
+      if (selectedCustomer) {
+        setEditingService(null)
+        setCustomerEntryMode('existing')
+        resetAddStates()
+        setFormData({
+          ...emptyForm,
+          customer: selectedCustomer.id,
+          customer_full_name: selectedCustomer.full_name || '',
+          customer_phone: formatPhoneInput(selectedCustomer.phone_number || ''),
+          customer_address: selectedCustomer.address || '',
+          scheduled_date: toDateInputValue(new Date().toISOString()),
+        })
+        setShowFormModal(true)
+
+        const nextParams = new URLSearchParams(searchParams)
+        nextParams.delete('create_customer')
+        setSearchParams(nextParams, { replace: true })
+        return
+      }
+    }
+
     const requestedServiceId = searchParams.get('open_service')
     if (!requestedServiceId || autoOpenedServiceId === requestedServiceId) return
 
@@ -1431,7 +1455,7 @@ const Services = ({ renderAsModalOnly = false, initialServiceId = null, onCloseM
     const nextParams = new URLSearchParams(searchParams)
     nextParams.delete('open_service')
     setSearchParams(nextParams, { replace: true })
-  }, [autoOpenedServiceId, searchParams, setSearchParams, renderAsModalOnly, initialServiceId])
+  }, [autoOpenedServiceId, searchParams, setSearchParams, renderAsModalOnly, initialServiceId, customers])
 
   const refreshSelectedService = async () => {
     if (!selectedService?.id) return
@@ -3287,4 +3311,3 @@ const Services = ({ renderAsModalOnly = false, initialServiceId = null, onCloseM
 }
 
 export default Services
-

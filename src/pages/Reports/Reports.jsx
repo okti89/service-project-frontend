@@ -12,8 +12,10 @@ import {
   Spinner,
   Table,
 } from 'react-bootstrap'
+import { useLocation } from 'react-router-dom'
 import {
   FaChartBar,
+  FaCalendarAlt,
   FaChartLine,
   FaFilePdf,
   FaFilter,
@@ -45,6 +47,10 @@ const MONTH_OPTIONS = [
 ]
 
 const now = new Date()
+const localDateInputValue = (date = new Date()) => {
+  const offset = date.getTimezoneOffset() * 60 * 1000
+  return new Date(date.getTime() - offset).toISOString().slice(0, 10)
+}
 const DEFAULT_FILTERS = {
   year: String(now.getFullYear()),
   month: '',
@@ -132,7 +138,10 @@ const StatCard = ({ title, value, countText, countLabel = 'Kayıt:', bgColor }) 
 )
 
 function Reports() {
+  const location = useLocation()
   const [filters, setFilters] = useState(DEFAULT_FILTERS)
+  const [dailyReportDate, setDailyReportDate] = useState(() => localDateInputValue())
+  const [dailyListTechnicianId, setDailyListTechnicianId] = useState('')
   const [general, setGeneral] = useState(null)
   const [technicianRows, setTechnicianRows] = useState([])
   const [dashboard, setDashboard] = useState(null)
@@ -188,6 +197,14 @@ function Reports() {
     fetchReports()
   }, [fetchReports])
 
+  useEffect(() => {
+    if (location.hash !== '#daily-service-lists') return undefined
+    const timer = window.setTimeout(() => {
+      document.getElementById('daily-service-lists')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }, 0)
+    return () => window.clearTimeout(timer)
+  }, [location.hash])
+
   const openTechnicianDetail = async (technician) => {
     setDetailModal({ show: true, technician })
     setDetailLoading(true)
@@ -205,12 +222,17 @@ function Reports() {
   }
 
   const exportPdf = async (type) => {
-    const params = new URLSearchParams({
-      ...getQueryParams(filters),
-      export: 'pdf',
-    })
-    const endpoint =
-      type === 'general' ? '/reports/general/' : '/reports/technician/'
+    const isDailySummary = type === 'daily-summary'
+    const isDailyServiceList = type === 'daily-service-list' || type === 'technician-daily-service-list'
+    const isTechnicianDailyList = type === 'technician-daily-service-list'
+    const params = new URLSearchParams(
+      isDailySummary || isDailyServiceList
+        ? { date: dailyReportDate, ...(isTechnicianDailyList ? { technician_id: dailyListTechnicianId } : {}) }
+        : { ...getQueryParams(filters), export: 'pdf' }
+    )
+    const endpoint = isDailySummary || isDailyServiceList
+      ? isDailySummary ? '/reports/daily-summary/pdf/' : '/reports/daily-service-list/pdf/'
+      : type === 'general' ? '/reports/general/' : '/reports/technician/'
 
     try {
       const response = await api.get(`${endpoint}?${params.toString()}`, {
@@ -249,6 +271,53 @@ function Reports() {
           </Button>
         </div>
       </div>
+
+      <Card id="daily-service-lists" className="border-0 shadow-sm rounded-4 mb-4">
+        <Card.Body className="p-3 d-flex flex-wrap align-items-center gap-3">
+          <div>
+            <div className="fw-bold text-dark">Günlük Raporlar ve Servis Listeleri</div>
+            <div className="small text-muted">Günlük icmal, genel servis programı ve teknisyene özel liste oluşturun.</div>
+          </div>
+          <Form.Group className="ms-md-auto mb-0" controlId="daily-summary-date">
+            <Form.Label className="visually-hidden">İcmal tarihi</Form.Label>
+            <div className="d-flex align-items-center gap-2">
+              <FaCalendarAlt className="text-primary" />
+              <Form.Control
+                type="date"
+                value={dailyReportDate}
+                onChange={(event) => setDailyReportDate(event.target.value)}
+                style={{ minWidth: '170px' }}
+              />
+              <Button variant="outline-primary" onClick={() => exportPdf('daily-summary')}>
+                <FaFilePdf className="me-1" /> Günlük İcmal PDF
+              </Button>
+              <Button variant="primary" onClick={() => exportPdf('daily-service-list')}>
+                <FaCalendarAlt className="me-1" /> Genel Servis Listesi
+              </Button>
+              <Form.Select
+                value={dailyListTechnicianId}
+                onChange={(event) => setDailyListTechnicianId(event.target.value)}
+                aria-label="Teknisyen seçin"
+                style={{ minWidth: '190px' }}
+              >
+                <option value="">Teknisyen seçin</option>
+                {technicianRows.filter((row) => row.technician_id).map((row) => (
+                  <option key={row.technician_id} value={row.technician_id}>
+                    {row.technician_name}
+                  </option>
+                ))}
+              </Form.Select>
+              <Button
+                variant="outline-primary"
+                disabled={!dailyListTechnicianId}
+                onClick={() => exportPdf('technician-daily-service-list')}
+              >
+                <FaCalendarAlt className="me-1" /> Teknisyen Listesi
+              </Button>
+            </div>
+          </Form.Group>
+        </Card.Body>
+      </Card>
 
       {/* Filters Seçtion */}
       <Card className="border-0 shadow-sm rounded-4 mb-4">
