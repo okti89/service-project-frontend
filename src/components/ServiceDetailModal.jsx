@@ -391,6 +391,12 @@ const ServiceDetailModal = ({ serviceId, initialService = null, show, onClose, o
                             <div className="meta-value">{service.fault_description || '-'}</div>
                           </div>
                         </Col>
+                        <Col md={12}>
+                          <div className="service-meta-card">
+                            <div className="meta-label">Servis Açıklaması</div>
+                            <div className="meta-value">{service.description || '-'}</div>
+                          </div>
+                        </Col>
                       </Row>
                     </Card.Body>
                   </Card>

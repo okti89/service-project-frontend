@@ -454,7 +454,7 @@ const Customers = () => {
                                     {customerServices.map(s => {
                                         const id = s.id ?? s.pk;
                                         const receipt = s.receipt_number || s.service_no || s.code || `#${id}`;
-                                        const subject = s.subject || s.title || s.description || s.fault_description || '-';
+                                        const subject = s.subject || s.title || s.fault_description || '-';
                                         const statusName = getServiceStatusLabel(s);
                                         const date = s.scheduled_date || s.scheduled_at || s.service_date || s.created_at || s.date;
                                         const formattedDate = date ? new Date(date).toLocaleString('tr-TR') : '-';

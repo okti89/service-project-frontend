@@ -58,6 +58,7 @@ const emptyForm = {
   customer_phone: '',
   customer_address: '',
   fault_description: '',
+  description: '',
   device_type: '',
   device_brand: '',
   device_model: '',
@@ -1094,6 +1095,7 @@ const Services = ({ renderAsModalOnly = false, initialServiceId = null, onCloseM
       customer_phone: formatPhoneInput(service.customer_phone || ''),
       customer_address: service.customer_address || '',
       fault_description: service.fault_description || '',
+      description: service.description || '',
       device_type: service.device_type || '',
       device_brand: service.device_brand || '',
       device_model: service.device_model || '',
@@ -1115,6 +1117,7 @@ const Services = ({ renderAsModalOnly = false, initialServiceId = null, onCloseM
       customer_phone: formData.customer_phone || null,
       customer_address: formData.customer_address || null,
       fault_description: formData.fault_description || null,
+      description: formData.description.trim(),
       device_type: formData.device_type || null,
       device_brand: formData.device_brand || null,
       device_model: formData.device_model || null,
@@ -2390,6 +2393,15 @@ const Services = ({ renderAsModalOnly = false, initialServiceId = null, onCloseM
                       onChange={(event) => setFormData((prev) => ({ ...prev, fault_description: event.target.value }))}
                     />
                   </Form.Group>
+                  <Form.Group className="mb-3">
+                    <Form.Label className="fw-semibold">Servis Açıklaması</Form.Label>
+                    <Form.Control
+                      as="textarea"
+                      rows={2}
+                      value={formData.description}
+                      onChange={(event) => setFormData((prev) => ({ ...prev, description: event.target.value }))}
+                    />
+                  </Form.Group>
 
                   <Row className="g-3 mb-3">
                     <Col md={4}>
@@ -2709,6 +2721,12 @@ const Services = ({ renderAsModalOnly = false, initialServiceId = null, onCloseM
                                 <div className="service-meta-card">
                                   <div className="meta-label">Ariza Notu</div>
                                   <div className="meta-value">{selectedService.fault_description || '-'}</div>
+                                </div>
+                              </Col>
+                              <Col md={12}>
+                                <div className="service-meta-card">
+                                  <div className="meta-label">Servis Açıklaması</div>
+                                  <div className="meta-value">{selectedService.description || '-'}</div>
                                 </div>
                               </Col>
                             </Row>
