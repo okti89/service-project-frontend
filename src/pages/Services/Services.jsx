@@ -531,18 +531,28 @@ const Services = ({ renderAsModalOnly = false, initialServiceId = null, onCloseM
     if (silent) setIsRefreshing(true)
     else setIsLoading(true)
 
+    const loadOptions = (url, apply) => {
+      api.get(url, { timeout: 15000 })
+        .then((response) => apply(toList(response.data)))
+        .catch((error) => console.warn('Servis yardımcı verileri yüklenemedi:', url, error))
+    }
+
+    // Optional form data must not hold the service list's loading state open.
+    loadOptions('/customers/customer-list/?status=all', setCustomers)
+    loadOptions('/technicians/technician-list/?include_inactive=false', (rows) => {
+      setTechnicians(rows.filter((item) => item?.user?.is_active !== false))
+    })
+    loadOptions('/services/device-types/', setDeviceTypes)
+    loadOptions('/services/brands/', setBrands)
+    loadOptions('/services/models/', setModels)
+    loadOptions('/products/products/', (rows) => {
+      setProducts(rows.filter((item) => item?.is_active !== false))
+    })
+    loadOptions('/services/payment-methods/', setPaymentMethods)
+    loadOptions('/services/service-operation-templates/', setOperationTemplatesData)
+
     try {
-      const [serviceRes, customerRes, techRes, typeRes, brandRes, modelRes, productRes, paymentMethodRes, operationTemplateRes] = await Promise.all([
-        api.get('/services/admin-services/'),
-        api.get('/customers/customer-list/?status=all').catch(() => ({ data: [] })),
-        api.get('/technicians/technician-list/?include_inactive=false').catch(() => ({ data: [] })),
-        api.get('/services/device-types/').catch(() => ({ data: [] })),
-        api.get('/services/brands/').catch(() => ({ data: [] })),
-        api.get('/services/models/').catch(() => ({ data: [] })),
-        api.get('/products/products/').catch(() => ({ data: [] })),
-        api.get('/services/payment-methods/').catch(() => ({ data: [] })),
-        api.get('/services/service-operation-templates/').catch(() => ({ data: [] })),
-      ])
+      const serviceRes = await api.get('/services/admin-services/')
 
       const serviceRows = toList(serviceRes.data)
       setServices(serviceRows)
@@ -558,14 +568,6 @@ const Services = ({ renderAsModalOnly = false, initialServiceId = null, onCloseM
         })
         return next
       })
-      setCustomers(toList(customerRes.data))
-      setTechnicians(toList(techRes.data).filter((item) => item?.user?.is_active !== false))
-      setDeviceTypes(toList(typeRes.data))
-      setBrands(toList(brandRes.data))
-      setModels(toList(modelRes.data))
-      setProducts(toList(productRes.data).filter((item) => item?.is_active !== false))
-      setPaymentMethods(toList(paymentMethodRes.data))
-      setOperationTemplatesData(toList(operationTemplateRes.data))
       setStatusOptions((prev) => mergeStatusOptions(prev, serviceRows.map((item) => item?.service_status)))
     } catch (error) {
       toast.error(readApiError(error, 'Servis verileri yüklenemedi.'))
