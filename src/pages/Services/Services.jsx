@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useState } from 'react'
+﻿import { useEffect, useEffectEvent, useMemo, useRef, useState } from 'react'
 import { Button, Card, Col, Form, InputGroup, Modal, Row, Spinner, Table } from 'react-bootstrap'
 import {
   FaCalendarAlt,
@@ -27,6 +27,8 @@ import { useSearchParams } from 'react-router-dom'
 
 import api from '../../api/api'
 import { SERVICE_STATUS_LIST } from '../../constants/serviceStatuses'
+import { getServiceDateRange } from './serviceDateRange'
+import CustomerSelect from '../../components/CustomerSelect'
 import './Services.css'
 
 const DEFAULT_SERVICE_STATUS_OPTIONS = SERVICE_STATUS_LIST
@@ -450,7 +452,7 @@ function isUpcomingSchedule(service) {
 const Services = ({ renderAsModalOnly = false, initialServiceId = null, onCloseModal = null }) => {
   const [searchParams, setSearchParams] = useSearchParams()
   const [services, setServices] = useState([])
-  const [customers, setCustomers] = useState([])
+  const [requestedCustomer, setRequestedCustomer] = useState(null)
   const [technicians, setTechnicians] = useState([])
   const [deviceTypes, setDeviceTypes] = useState([])
   const [brands, setBrands] = useState([])
@@ -486,6 +488,12 @@ const Services = ({ renderAsModalOnly = false, initialServiceId = null, onCloseM
     const now = new Date()
     return new Date(now.getFullYear(), now.getMonth(), 1)
   })
+  const listRequestRef = useRef(null)
+  const optionsRequestedRef = useRef(false)
+  const serviceRange = getServiceDateRange(
+    viewMode === 'calendar' ? calendarMonth : periodCursor,
+    viewMode === 'calendar' ? 'monthly' : periodMode,
+  )
 
   const [showFormModal, setShowFormModal] = useState(false)
   const [showWarrantyModal, setShowWarrantyModal] = useState(false)
@@ -527,9 +535,15 @@ const Services = ({ renderAsModalOnly = false, initialServiceId = null, onCloseM
 
   const optionCreateMeta = OPTION_MODAL_META[optionCreateType] || null
 
-  const fetchAll = async (silent = false) => {
+  const fetchAll = async (silent = false, refreshOptions = false) => {
+    listRequestRef.current?.abort()
+    const controller = new AbortController()
+    listRequestRef.current = controller
     if (silent) setIsRefreshing(true)
-    else setIsLoading(true)
+    else {
+      setIsLoading(true)
+      setServices([])
+    }
 
     const loadOptions = (url, apply) => {
       api.get(url, { timeout: 15000 })
@@ -537,22 +551,12 @@ const Services = ({ renderAsModalOnly = false, initialServiceId = null, onCloseM
         .catch((error) => console.warn('Servis yardımcı verileri yüklenemedi:', url, error))
     }
 
-    // Optional form data must not hold the service list's loading state open.
-    loadOptions('/customers/customer-list/?status=all', setCustomers)
-    loadOptions('/technicians/technician-list/?include_inactive=false', (rows) => {
-      setTechnicians(rows.filter((item) => item?.user?.is_active !== false))
-    })
-    loadOptions('/services/device-types/', setDeviceTypes)
-    loadOptions('/services/brands/', setBrands)
-    loadOptions('/services/models/', setModels)
-    loadOptions('/products/products/', (rows) => {
-      setProducts(rows.filter((item) => item?.is_active !== false))
-    })
-    loadOptions('/services/payment-methods/', setPaymentMethods)
-    loadOptions('/services/service-operation-templates/', setOperationTemplatesData)
-
     try {
-      const serviceRes = await api.get('/services/admin-services/')
+      const serviceRes = await api.get('/services/admin-services/', {
+        params: serviceRange,
+        signal: controller.signal,
+      })
+      if (controller.signal.aborted) return
 
       const serviceRows = toList(serviceRes.data)
       setServices(serviceRows)
@@ -570,16 +574,37 @@ const Services = ({ renderAsModalOnly = false, initialServiceId = null, onCloseM
       })
       setStatusOptions((prev) => mergeStatusOptions(prev, serviceRows.map((item) => item?.service_status)))
     } catch (error) {
-      toast.error(readApiError(error, 'Servis verileri yüklenemedi.'))
+      if (!controller.signal.aborted) {
+        toast.error(readApiError(error, 'Servis verileri yüklenemedi.'))
+      }
     } finally {
-      if (silent) setIsRefreshing(false)
-      else setIsLoading(false)
+      if (listRequestRef.current === controller) {
+        setIsRefreshing(false)
+        setIsLoading(false)
+      }
     }
+
+    if (controller.signal.aborted || (optionsRequestedRef.current && !refreshOptions)) return
+    optionsRequestedRef.current = true
+    // Load optional form data after the list to avoid competing for connections.
+    loadOptions('/technicians/technician-list/?include_inactive=false', (rows) => {
+      setTechnicians(rows.filter((item) => item?.user?.is_active !== false))
+    })
+    loadOptions('/services/device-types/', setDeviceTypes)
+    loadOptions('/services/brands/', setBrands)
+    loadOptions('/services/models/', setModels)
+    loadOptions('/products/products/', (rows) => {
+      setProducts(rows.filter((item) => item?.is_active !== false))
+    })
+    loadOptions('/services/payment-methods/', setPaymentMethods)
+    loadOptions('/services/service-operation-templates/', setOperationTemplatesData)
   }
 
+  const loadPeriodServices = useEffectEvent(() => fetchAll())
   useEffect(() => {
-    fetchAll()
-  }, [])
+    loadPeriodServices()
+    return () => listRequestRef.current?.abort()
+  }, [serviceRange.start_date, serviceRange.end_date])
 
   useEffect(() => {
     if (editingPaymentId) return
@@ -589,7 +614,7 @@ const Services = ({ renderAsModalOnly = false, initialServiceId = null, onCloseM
   }, [paymentMethods, paymentForm.payment_method, editingPaymentId])
 
   const handleRefresh = async () => {
-    await fetchAll(true)
+    await fetchAll(true, true)
     toast.success('Servis verileri yenilendi.')
   }
 
@@ -797,7 +822,10 @@ const Services = ({ renderAsModalOnly = false, initialServiceId = null, onCloseM
       const next = new Date(prev)
       if (periodMode === 'yearly') next.setFullYear(next.getFullYear() + offset)
       else if (periodMode === 'weekly') next.setDate(next.getDate() + (offset * 7))
-      else if (periodMode === 'monthly') next.setMonth(next.getMonth() + offset)
+      else if (periodMode === 'monthly') {
+        next.setDate(1)
+        next.setMonth(next.getMonth() + offset)
+      }
       else next.setDate(next.getDate() + offset)
       return next
     })
@@ -819,8 +847,8 @@ const Services = ({ renderAsModalOnly = false, initialServiceId = null, onCloseM
     }))
   }
 
-  const handleCustomerSelect = (customerId) => {
-    if (!customerId) {
+  const handleCustomerSelect = (selected) => {
+    if (!selected) {
       setFormData((prev) => ({
         ...prev,
         customer: '',
@@ -830,9 +858,6 @@ const Services = ({ renderAsModalOnly = false, initialServiceId = null, onCloseM
       }))
       return
     }
-
-    const selected = customers.find((item) => String(item.id) === String(customerId))
-    if (!selected) return
 
     setFormData((prev) => ({
       ...prev,
@@ -914,15 +939,14 @@ const Services = ({ renderAsModalOnly = false, initialServiceId = null, onCloseM
 
     setAddLoadingValue('customer', true)
     try {
-      const response = await api.post('/customers/customer-list/', {
+      const response = await api.post('/customers/customers/', {
         full_name: fullName,
         phone_number: phoneNumber,
         address,
-        notes,
+        note: notes,
       })
 
       const created = response.data || {}
-      setCustomers((prev) => [created, ...prev.filter((item) => item.id !== created.id)])
       setCustomerEntryMode('existing')
       setFormData((prev) => ({
         ...prev,
@@ -1418,6 +1442,18 @@ const Services = ({ renderAsModalOnly = false, initialServiceId = null, onCloseM
     await fetchServiceDetail(serviceId)
   }
 
+  const requestedCustomerId = searchParams.get('create_customer')
+  useEffect(() => {
+    if (!requestedCustomerId || renderAsModalOnly) return
+    const controller = new AbortController()
+    api.get(`/customers/customers/${requestedCustomerId}/`, { signal: controller.signal })
+      .then((response) => { if (!controller.signal.aborted) setRequestedCustomer(response.data) })
+      .catch((error) => {
+        if (!controller.signal.aborted) toast.error(readApiError(error, 'Müşteri yüklenemedi.'))
+      })
+    return () => controller.abort()
+  }, [requestedCustomerId, renderAsModalOnly])
+
   useEffect(() => {
     if (renderAsModalOnly) {
       if (initialServiceId && initialServiceId !== autoOpenedServiceId) {
@@ -1429,7 +1465,7 @@ const Services = ({ renderAsModalOnly = false, initialServiceId = null, onCloseM
 
     const requestedCustomerId = searchParams.get('create_customer')
     if (requestedCustomerId) {
-      const selectedCustomer = customers.find((item) => String(item.id) === String(requestedCustomerId))
+      const selectedCustomer = String(requestedCustomer?.id) === String(requestedCustomerId) ? requestedCustomer : null
       if (selectedCustomer) {
         setEditingService(null)
         setCustomerEntryMode('existing')
@@ -1460,7 +1496,7 @@ const Services = ({ renderAsModalOnly = false, initialServiceId = null, onCloseM
     const nextParams = new URLSearchParams(searchParams)
     nextParams.delete('open_service')
     setSearchParams(nextParams, { replace: true })
-  }, [autoOpenedServiceId, searchParams, setSearchParams, renderAsModalOnly, initialServiceId, customers])
+  }, [autoOpenedServiceId, searchParams, setSearchParams, renderAsModalOnly, initialServiceId, requestedCustomer])
 
   const refreshSelectedService = async () => {
     if (!selectedService?.id) return
@@ -2332,14 +2368,11 @@ const Services = ({ renderAsModalOnly = false, initialServiceId = null, onCloseM
                   {customerEntryMode === 'existing' ? (
                     <Form.Group className="mb-3">
                       <Form.Label className="fw-semibold">Müşteri Seç</Form.Label>
-                      <Form.Select value={formData.customer} onChange={(event) => handleCustomerSelect(event.target.value)}>
-                        <option value="">Müşteri seçin</option>
-                        {customers.map((customer) => (
-                          <option key={customer.id} value={customer.id}>
-                            {customer.full_name} - {customer.phone_number}
-                          </option>
-                        ))}
-                      </Form.Select>
+                      <CustomerSelect customer={formData.customer ? {
+                        id: formData.customer,
+                        full_name: formData.customer_full_name,
+                        phone_number: formData.customer_phone,
+                      } : null} onSelect={handleCustomerSelect} />
                     </Form.Group>
                   ) : (
                     <div className="service-form-note mb-3">Manuel giriş modunda müşteri bilgileri bu servis kaydı için ayrı tutulur.</div>

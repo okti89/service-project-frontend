@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import { useState } from 'react';
 import { Table, Button, Modal, Form, Spinner, Card, Row, Col, Badge, InputGroup } from 'react-bootstrap';
 import { FaPlus, FaUserTie, FaClipboardList, FaTools, FaSearch, FaTimes } from 'react-icons/fa';
 import ServiceDetailModal from '../../components/ServiceDetailModal';
@@ -6,15 +6,17 @@ import api from '../../api/api';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import { getServiceStatusLabel } from '../../constants/serviceStatuses';
+import useCustomerPages from '../../hooks/useCustomerPages';
+import CustomerLoadingStatus from '../../components/CustomerLoadingStatus';
 
 const Customers = () => {
     const navigate = useNavigate();
-    const [customers, setCustomers] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
     const [editingId, setEditingId] = useState(null);
     const [currentTab, setCurrentTab] = useState('all');
     const [searchTerm, setSearchTerm] = useState('');
+    const customerPages = useCustomerPages({ search: searchTerm, status: currentTab });
+    const { customers, summary, isLoading, error: customersError, reload: fetchCustomers } = customerPages;
 
     const [servicesModal, setServicesModal] = useState({ open: false, customer: null });
     const [customerServices, setCustomerServices] = useState([]);
@@ -30,22 +32,6 @@ const Customers = () => {
         address: '',
         note: ''
     });
-
-    const fetchCustomers = async () => {
-        try {
-            const res = await api.get('/customers/customers/');
-            // Backend returns a list directly or inside a results key if paginated
-            setCustomers(res.data.results || res.data);
-        } catch (error) {
-            toast.error('Müşteriler yüklenirken hata oluştu.');
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchCustomers();
-    }, []);
 
     const handleClose = () => {
         setShowModal(false);
@@ -132,7 +118,7 @@ const Customers = () => {
                 await api.delete(`/customers/customers/${id}/`);
                 toast.success('Müşteri silindi.');
                 fetchCustomers();
-            } catch (error) {
+            } catch {
                 toast.error('Silme işlemi başarısız.');
             }
         }
@@ -158,7 +144,7 @@ const Customers = () => {
                 await api.post(`/customers/customers/${id}/restore/`);
                 toast.success('Müşteri kaydı geri getirildi.');
                 fetchCustomers();
-            } catch (error) {
+            } catch {
                 toast.error('Geri getirme işlemi başarısız.');
             }
         }
@@ -209,26 +195,10 @@ const Customers = () => {
         setSelectedService(null);
     };
 
-    const totalCustomers = customers.length;
-    const activeCustomers = customers.filter(c => !c.is_deleted).length;
-    const inactiveCustomers = customers.filter(c => c.is_deleted).length;
-
-    const displayedCustomers = useMemo(() => {
-        const term = String(searchTerm || '').trim().toLocaleLowerCase('tr-TR');
-        return customers.filter(c => {
-            if (currentTab === 'active' && c.is_deleted) return false;
-            if (currentTab === 'inactive' && !c.is_deleted) return false;
-            if (!term) return true;
-            const haystack = [
-                c.full_name,
-                c.phone_number,
-                c.email,
-                c.address,
-                c.note,
-            ].filter(Boolean).join(' ').toLocaleLowerCase('tr-TR');
-            return haystack.includes(term);
-        });
-    }, [customers, currentTab, searchTerm]);
+    const totalCustomers = summary.total;
+    const activeCustomers = summary.active;
+    const inactiveCustomers = summary.inactive;
+    const displayedCustomers = customers;
 
     return (
         <div>
@@ -289,7 +259,7 @@ const Customers = () => {
                         <div className="text-center p-5"><Spinner animation="border" variant="primary" /></div>
                     ) : displayedCustomers.length === 0 ? (
                         <div className="text-center p-5 text-muted">
-                            {searchTerm
+                            {customersError ? 'Müşteri listesi yüklenemedi.' : searchTerm
                                 ? `"${searchTerm}" ile eşleşen müşteri bulunamadı.`
                                 : currentTab === 'all'
                                     ? 'Henüz müşteri kaydı bulunmuyor.'
@@ -359,6 +329,7 @@ const Customers = () => {
                             </Table>
                         </div>
                     )}
+                    <CustomerLoadingStatus {...customerPages} />
                 </Card.Body>
             </Card>
 

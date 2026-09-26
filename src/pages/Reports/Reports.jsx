@@ -12,10 +12,9 @@ import {
   Spinner,
   Table,
 } from 'react-bootstrap'
-import { useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import {
   FaChartBar,
-  FaCalendarAlt,
   FaChartLine,
   FaFilePdf,
   FaFilter,
@@ -47,10 +46,6 @@ const MONTH_OPTIONS = [
 ]
 
 const now = new Date()
-const localDateInputValue = (date = new Date()) => {
-  const offset = date.getTimezoneOffset() * 60 * 1000
-  return new Date(date.getTime() - offset).toISOString().slice(0, 10)
-}
 const DEFAULT_FILTERS = {
   year: String(now.getFullYear()),
   month: '',
@@ -139,9 +134,8 @@ const StatCard = ({ title, value, countText, countLabel = 'Kayıt:', bgColor }) 
 
 function Reports() {
   const location = useLocation()
+  const navigate = useNavigate()
   const [filters, setFilters] = useState(DEFAULT_FILTERS)
-  const [dailyReportDate, setDailyReportDate] = useState(() => localDateInputValue())
-  const [dailyListTechnicianId, setDailyListTechnicianId] = useState('')
   const [general, setGeneral] = useState(null)
   const [technicianRows, setTechnicianRows] = useState([])
   const [dashboard, setDashboard] = useState(null)
@@ -194,16 +188,14 @@ function Reports() {
   }, [filters])
 
   useEffect(() => {
+    if (location.hash === '#daily-service-lists' || location.hash === '#daily-summary') return
     fetchReports()
-  }, [fetchReports])
+  }, [fetchReports, location.hash])
 
   useEffect(() => {
-    if (location.hash !== '#daily-service-lists') return undefined
-    const timer = window.setTimeout(() => {
-      document.getElementById('daily-service-lists')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    }, 0)
-    return () => window.clearTimeout(timer)
-  }, [location.hash])
+    if (location.hash === '#daily-service-lists') navigate('/dashboard/daily-service-lists', { replace: true })
+    if (location.hash === '#daily-summary') navigate('/dashboard/daily-summary', { replace: true })
+  }, [location.hash, navigate])
 
   const openTechnicianDetail = async (technician) => {
     setDetailModal({ show: true, technician })
@@ -222,17 +214,8 @@ function Reports() {
   }
 
   const exportPdf = async (type) => {
-    const isDailySummary = type === 'daily-summary'
-    const isDailyServiceList = type === 'daily-service-list' || type === 'technician-daily-service-list'
-    const isTechnicianDailyList = type === 'technician-daily-service-list'
-    const params = new URLSearchParams(
-      isDailySummary || isDailyServiceList
-        ? { date: dailyReportDate, ...(isTechnicianDailyList ? { technician_id: dailyListTechnicianId } : {}) }
-        : { ...getQueryParams(filters), export: 'pdf' }
-    )
-    const endpoint = isDailySummary || isDailyServiceList
-      ? isDailySummary ? '/reports/daily-summary/pdf/' : '/reports/daily-service-list/pdf/'
-      : type === 'general' ? '/reports/general/' : '/reports/technician/'
+    const params = new URLSearchParams({ ...getQueryParams(filters), export: 'pdf' })
+    const endpoint = type === 'general' ? '/reports/general/' : '/reports/technician/'
 
     try {
       const response = await api.get(`${endpoint}?${params.toString()}`, {
@@ -272,52 +255,24 @@ function Reports() {
         </div>
       </div>
 
-      <Card id="daily-service-lists" className="border-0 shadow-sm rounded-4 mb-4">
-        <Card.Body className="p-3 d-flex flex-wrap align-items-center gap-3">
-          <div>
-            <div className="fw-bold text-dark">Günlük Raporlar ve Servis Listeleri</div>
-            <div className="small text-muted">Günlük icmal, genel servis programı ve teknisyene özel liste oluşturun.</div>
-          </div>
-          <Form.Group className="ms-md-auto mb-0" controlId="daily-summary-date">
-            <Form.Label className="visually-hidden">İcmal tarihi</Form.Label>
-            <div className="d-flex align-items-center gap-2">
-              <FaCalendarAlt className="text-primary" />
-              <Form.Control
-                type="date"
-                value={dailyReportDate}
-                onChange={(event) => setDailyReportDate(event.target.value)}
-                style={{ minWidth: '170px' }}
-              />
-              <Button variant="outline-primary" onClick={() => exportPdf('daily-summary')}>
-                <FaFilePdf className="me-1" /> Günlük İcmal PDF
-              </Button>
-              <Button variant="primary" onClick={() => exportPdf('daily-service-list')}>
-                <FaCalendarAlt className="me-1" /> Genel Servis Listesi
-              </Button>
-              <Form.Select
-                value={dailyListTechnicianId}
-                onChange={(event) => setDailyListTechnicianId(event.target.value)}
-                aria-label="Teknisyen seçin"
-                style={{ minWidth: '190px' }}
-              >
-                <option value="">Teknisyen seçin</option>
-                {technicianRows.filter((row) => row.technician_id).map((row) => (
-                  <option key={row.technician_id} value={row.technician_id}>
-                    {row.technician_name}
-                  </option>
-                ))}
-              </Form.Select>
-              <Button
-                variant="outline-primary"
-                disabled={!dailyListTechnicianId}
-                onClick={() => exportPdf('technician-daily-service-list')}
-              >
-                <FaCalendarAlt className="me-1" /> Teknisyen Listesi
-              </Button>
-            </div>
-          </Form.Group>
-        </Card.Body>
-      </Card>
+      <Row className="g-3 mb-4">
+        <Col md={6}>
+          <Card className="border-0 shadow-sm rounded-4 h-100">
+            <Card.Body className="d-flex flex-wrap align-items-center justify-content-between gap-3">
+              <div><div className="fw-bold">Günlük İcmal</div><div className="small text-muted">Günün servis gelirleri ve tahsilat özeti.</div></div>
+              <Button as={Link} to="/dashboard/daily-summary" variant="outline-primary">İcmali Görüntüle</Button>
+            </Card.Body>
+          </Card>
+        </Col>
+        <Col md={6}>
+          <Card className="border-0 shadow-sm rounded-4 h-100">
+            <Card.Body className="d-flex flex-wrap align-items-center justify-content-between gap-3">
+              <div><div className="fw-bold">Günlük Servis Listeleri</div><div className="small text-muted">Genel servis programı ve teknisyen görevleri.</div></div>
+              <Button as={Link} to="/dashboard/daily-service-lists" variant="outline-primary">Listeleri Görüntüle</Button>
+            </Card.Body>
+          </Card>
+        </Col>
+      </Row>
 
       {/* Filters Seçtion */}
       <Card className="border-0 shadow-sm rounded-4 mb-4">

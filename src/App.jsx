@@ -49,6 +49,7 @@ import Notifications from './pages/Notifications/Notifications'
 import Inbox from './pages/Notifications/Inbox'
 import Accounting from './pages/Accounting/Accounting'
 import Reports from './pages/Reports/Reports'
+import { DailySummary, DailyServiceList } from './pages/Reports/DailyReport'
 import Payroll from './pages/Payroll/Payroll'
 import PublicServiceTracking from './pages/PublicServiceTracking/PublicServiceTracking'
 import PrivacyPolicy from './pages/Public/PrivacyPolicy'
@@ -131,9 +132,9 @@ const sidebarSections = [
       { to: '/dashboard/inventory', icon: FaBoxes, label: 'Stok & Envanter', match: (pathname) => pathname.includes('/inventory') },
       { to: '/dashboard/accounting', icon: FaMoneyCheckAlt, label: 'Finans & Muhasebe', match: (pathname) => pathname.includes('/accounting') },
       { to: '/dashboard/payroll', icon: FaMoneyCheckAlt, label: 'Maa' + c(351) + ' Bordrosu', match: (pathname) => pathname.includes('/payroll') },
-      { to: '/dashboard/reporting', icon: FaChartLine, label: 'Raporlar', match: (pathname) => pathname.includes('/reporting') },
-      { to: '/dashboard/reporting#daily-service-lists', icon: FaChartLine, label: 'Günlük İcmal', match: (pathname) => pathname.includes('/reporting') },
-      { to: '/dashboard/reporting#daily-service-lists', icon: FaClipboardList, label: 'Günlük Servis Listeleri', match: (pathname) => pathname.includes('/reporting') },
+      { to: '/dashboard/reporting', icon: FaChartLine, label: 'Raporlar', match: (pathname) => pathname === '/dashboard/reporting' },
+      { to: '/dashboard/daily-summary', icon: FaChartLine, label: 'Günlük İcmal', match: (pathname) => pathname === '/dashboard/daily-summary' },
+      { to: '/dashboard/daily-service-lists', icon: FaClipboardList, label: 'Günlük Servis Listeleri', match: (pathname) => pathname === '/dashboard/daily-service-lists' },
     ],
   },
   {
@@ -586,6 +587,8 @@ function App() {
                   <Route path="accounting" element={<Accounting />} />
                   <Route path="payroll" element={<Payroll />} />
                   <Route path="reporting" element={<Reports />} />
+                  <Route path="daily-summary" element={<DailySummary />} />
+                  <Route path="daily-service-lists" element={<DailyServiceList />} />
                   <Route path="feed" element={<Feed />} />
                   <Route path="inbox" element={<Inbox />} />
                   <Route path="notifications" element={<Notifications />} />
