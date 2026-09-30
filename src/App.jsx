@@ -55,6 +55,8 @@ import PublicServiceTracking from './pages/PublicServiceTracking/PublicServiceTr
 import PrivacyPolicy from './pages/Public/PrivacyPolicy'
 import DeleteAccount from './pages/Public/DeleteAccount'
 import AppDownload from './pages/Public/AppDownload'
+import Support from './pages/Public/Support'
+import Terms from './pages/Public/Terms'
 import GlobalSearchModal from './components/GlobalSearchModal'
 import PlaceholderPage from './components/PlaceholderPage'
 import Feed from './pages/Feed/Feed'
@@ -562,6 +564,8 @@ function App() {
               <Route path="/service-tracking/:serviceId" element={<PublicServiceTracking />} />
               <Route path="/privacy-policy/" element={<PrivacyPolicy />} />
               <Route path="/delete-account/" element={<DeleteAccount />} />
+              <Route path="/support/" element={<Support />} />
+              <Route path="/terms/" element={<Terms />} />
               <Route path="/download/" element={<AppDownload />} />
 
               <Route element={<GuestRoute />}>

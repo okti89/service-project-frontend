@@ -74,7 +74,7 @@ export default function AppDownload() {
 
         <footer className="d-flex flex-column flex-sm-row justify-content-between gap-2 pt-4 mt-3" style={{ borderTop: '1px solid rgba(214, 246, 240, 0.1)', color: '#78999f', fontSize: 13 }}>
           <span>Servis Yönetimi mobil uygulaması</span>
-          <Link to="/privacy-policy/" className="text-decoration-none" style={{ color: '#93c8c1' }}>Gizlilik Politikası</Link>
+          <div className="d-flex flex-wrap gap-3"><Link to="/support/" className="text-decoration-none" style={{ color: '#93c8c1' }}>Destek</Link><Link to="/privacy-policy/" className="text-decoration-none" style={{ color: '#93c8c1' }}>Gizlilik Politikası</Link><Link to="/terms/" className="text-decoration-none" style={{ color: '#93c8c1' }}>Kullanım Koşulları</Link></div>
         </footer>
       </div>
     </main>

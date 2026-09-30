@@ -767,6 +767,12 @@ const Landing = () => {
         }}
       >
         © {new Date().getFullYear()} Servis Yönetimi · Tüm hakları saklıdır.
+        <div className="d-flex justify-content-center flex-wrap gap-3 mt-2">
+          <Link to="/support/" className="text-light">Destek</Link>
+          <Link to="/privacy-policy/" className="text-light">Gizlilik Politikası</Link>
+          <Link to="/terms/" className="text-light">Kullanım Koşulları</Link>
+          <Link to="/delete-account/" className="text-light">Hesap Silme</Link>
+        </div>
       </footer>
     </div>
   )
