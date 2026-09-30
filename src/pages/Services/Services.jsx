@@ -498,7 +498,10 @@ const Services = ({ renderAsModalOnly = false, initialServiceId = null, onCloseM
   const [showFormModal, setShowFormModal] = useState(false)
   const [showWarrantyModal, setShowWarrantyModal] = useState(false)
   const [warrantyServiceId, setWarrantyServiceId] = useState(null)
-  const [warrantyMonths, setWarrantyMonths] = useState(24)
+  const [warrantyMonths, setWarrantyMonths] = useState(12)
+  const [showWarrantyEditModal, setShowWarrantyEditModal] = useState(false)
+  const [warrantyEditMonths, setWarrantyEditMonths] = useState('12')
+  const [isSavingWarranty, setIsSavingWarranty] = useState(false)
   const [showCustomerCreateModal, setShowCustomerCreateModal] = useState(false)
   const [showOptionCreateModal, setShowOptionCreateModal] = useState(false)
   const [optionCreateType, setOptionCreateType] = useState('')
@@ -1311,6 +1314,38 @@ const Services = ({ renderAsModalOnly = false, initialServiceId = null, onCloseM
       toast.error(readApiError(error, 'Servis PDF oluşturulamadı.'))
     } finally {
       setActionLoadingKey('')
+    }
+  }
+
+  const openWarrantyEditModal = () => {
+    if (!selectedService) return
+    setWarrantyEditMonths(String(selectedService.warranty_months || 12))
+    setShowWarrantyEditModal(true)
+  }
+
+  const saveWarrantyMonths = async (remove = false) => {
+    if (!selectedService?.id || isSavingWarranty) return
+    const months = Number(warrantyEditMonths)
+    if (!remove && (!Number.isInteger(months) || months < 1 || months > 120)) {
+      toast.error('Garanti süresi 1 ile 120 ay arasında olmalıdır.')
+      return
+    }
+
+    setIsSavingWarranty(true)
+    try {
+      const response = await api.patch(`/services/admin-services/${selectedService.id}/`, {
+        warranty_months: remove ? null : months,
+      })
+      updateServiceInList(response.data)
+      setSelectedService((previous) => previous?.id === response.data.id
+        ? { ...previous, ...response.data }
+        : previous)
+      setShowWarrantyEditModal(false)
+      toast.success(remove ? 'Garanti süresi kaldırıldı.' : 'Garanti süresi kaydedildi.')
+    } catch (error) {
+      toast.error(readApiError(error, 'Garanti süresi kaydedilemedi.'))
+    } finally {
+      setIsSavingWarranty(false)
     }
   }
 
@@ -2293,7 +2328,7 @@ const Services = ({ renderAsModalOnly = false, initialServiceId = null, onCloseM
                                   <Button variant="dark" size="sm" className="service-row-action-btn" onClick={() => openDetailModal(svc.id)} title="Detay" aria-label="Detay">Detay</Button>
                                   <Button variant="outline-primary" size="sm" className="service-row-action-btn" onClick={() => openEditModal(svc)} title="Düzenle" aria-label="Düzenle">Düzenle</Button>
                                   <Button variant="outline-danger" size="sm" className="service-row-action-btn" onClick={() => downloadServiceFormPdf(svc)} disabled={actionLoadingKey === `pdf-${svc.id}`} title="Servis PDF" aria-label="Servis PDF">PDF</Button>
-                                  <Button variant="outline-info" size="sm" className="service-row-action-btn" onClick={() => { setWarrantyServiceId(svc.id); setWarrantyMonths(24); setShowWarrantyModal(true); }} disabled={actionLoadingKey === `warranty-pdf-${svc.id}`} title="Garanti Belgesi" aria-label="Garanti Belgesi">Garanti</Button>
+                                  <Button variant="outline-info" size="sm" className="service-row-action-btn" onClick={() => { setWarrantyServiceId(svc.id); setWarrantyMonths(svc.warranty_months || 12); setShowWarrantyModal(true); }} disabled={actionLoadingKey === `warranty-pdf-${svc.id}`} title="Garanti Belgesi" aria-label="Garanti Belgesi">Garanti</Button>
                                   <Button variant="outline-secondary" size="sm" className="service-row-action-btn" onClick={() => sendServiceFormEmail(svc)} disabled={actionLoadingKey === `mail-${svc.id}`} title="E-posta gönder" aria-label="E-posta gönder">E-posta</Button>
                                   <Button variant="outline-success" size="sm" className="service-row-action-btn" onClick={() => sendStatusWhatsApp(svc)} disabled={actionLoadingKey === `wa-${svc.id}`} title="WhatsApp bildir" aria-label="WhatsApp bildir">WhatsApp</Button>
                                   <Button variant="outline-danger" size="sm" className="service-row-action-btn" onClick={() => setDeleteServiceTarget(svc)} title="Servisi sil" aria-label="Servisi sil"><FaTrash /></Button>
@@ -2313,6 +2348,56 @@ const Services = ({ renderAsModalOnly = false, initialServiceId = null, onCloseM
       )}
 
       {/* Modals are rendered outside the hidden condition so they always show */}
+
+      <Modal show={showWarrantyEditModal} onHide={() => !isSavingWarranty && setShowWarrantyEditModal(false)} centered>
+        <Modal.Header closeButton={!isSavingWarranty}>
+          <Modal.Title>Garanti Süresi</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form.Group>
+            <Form.Label>Garanti Süresi (Ay)</Form.Label>
+            <div className="d-flex flex-wrap gap-2 mb-3">
+              {[6, 12, 24, 36].map((month) => (
+                <Button
+                  key={month}
+                  type="button"
+                  size="sm"
+                  variant={Number(warrantyEditMonths) === month ? 'primary' : 'outline-secondary'}
+                  onClick={() => setWarrantyEditMonths(String(month))}
+                  disabled={isSavingWarranty}
+                >
+                  {month} Ay
+                </Button>
+              ))}
+            </div>
+            <Form.Control
+              type="number"
+              min="1"
+              max="120"
+              step="1"
+              value={warrantyEditMonths}
+              onChange={(event) => setWarrantyEditMonths(event.target.value)}
+              disabled={isSavingWarranty}
+            />
+            <Form.Text className="text-muted">Servis detayında ve servis formu PDF'sinde gösterilir.</Form.Text>
+          </Form.Group>
+        </Modal.Body>
+        <Modal.Footer className="justify-content-between">
+          <div>
+            {selectedService?.warranty_months ? (
+              <Button variant="outline-danger" onClick={() => saveWarrantyMonths(true)} disabled={isSavingWarranty}>
+                Süreyi Kaldır
+              </Button>
+            ) : null}
+          </div>
+          <div className="d-flex gap-2">
+            <Button variant="secondary" onClick={() => setShowWarrantyEditModal(false)} disabled={isSavingWarranty}>İptal</Button>
+            <Button variant="primary" onClick={() => saveWarrantyMonths()} disabled={isSavingWarranty}>
+              {isSavingWarranty ? <Spinner animation="border" size="sm" /> : 'Kaydet'}
+            </Button>
+          </div>
+        </Modal.Footer>
+      </Modal>
 
       <Modal show={showWarrantyModal} onHide={() => setShowWarrantyModal(false)} backdrop="static" centered>
         <Modal.Header closeButton>
@@ -2677,7 +2762,7 @@ const Services = ({ renderAsModalOnly = false, initialServiceId = null, onCloseM
                     <Button size="sm" variant="outline-dark" onClick={() => downloadServiceFormPdf(selectedService)} disabled={actionLoadingKey === `pdf-${selectedService.id}`}>
                       <FaFilePdf className="me-1" /> PDF
                     </Button>
-                    <Button size="sm" variant="outline-info" onClick={() => { setWarrantyServiceId(selectedService.id); setWarrantyMonths(24); setShowWarrantyModal(true); }} disabled={actionLoadingKey === `warranty-pdf-${selectedService.id}`}>
+                    <Button size="sm" variant="outline-info" onClick={() => { setWarrantyServiceId(selectedService.id); setWarrantyMonths(selectedService.warranty_months || 12); setShowWarrantyModal(true); }} disabled={actionLoadingKey === `warranty-pdf-${selectedService.id}`}>
                       <FaFilePdf className="me-1" /> Garanti
                     </Button>
                     <Button size="sm" variant="outline-primary" onClick={() => sendServiceFormEmail(selectedService)} disabled={actionLoadingKey === `mail-${selectedService.id}`}>
@@ -2733,6 +2818,19 @@ const Services = ({ renderAsModalOnly = false, initialServiceId = null, onCloseM
                                     {[selectedService.device_type_name, selectedService.device_brand_name, selectedService.device_model_name].filter(Boolean).join(' / ') || '-'}
                                   </div>
                                 </div>
+                              </Col>
+                              <Col md={6}>
+                                {selectedService.warranty_months ? (
+                                  <div className="service-meta-card">
+                                    <div className="d-flex align-items-center justify-content-between gap-2">
+                                      <div className="meta-label">Garanti Süresi</div>
+                                      <Button size="sm" variant="outline-primary" onClick={openWarrantyEditModal}>Düzenle</Button>
+                                    </div>
+                                    <div className="meta-value">{selectedService.warranty_months} Ay</div>
+                                  </div>
+                                ) : (
+                                  <Button size="sm" variant="outline-primary" onClick={openWarrantyEditModal}>Garanti Ekle</Button>
+                                )}
                               </Col>
                               <Col md={6}>
                                 <div className="service-meta-card">
