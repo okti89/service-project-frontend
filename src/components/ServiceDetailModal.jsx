@@ -31,6 +31,7 @@ import {
 import toast from 'react-hot-toast'
 
 import api from '../api/api'
+import A4ServiceFormActions from './A4ServiceFormActions'
 import { getServiceStatusLabel, getServiceStatusMeta, SERVICE_STATUS_LIST } from '../constants/serviceStatuses'
 
 function formatDateTime(value) {
@@ -286,7 +287,8 @@ const ServiceDetailModal = ({ serviceId, initialService = null, show, onClose, o
                   {statusMeta.label}
                 </div>
               </div>
-              <div className="d-flex gap-2">
+              <div className="d-flex flex-wrap gap-2">
+                <A4ServiceFormActions service={service} />
                 <Button
                   size="sm"
                   variant="outline-dark"

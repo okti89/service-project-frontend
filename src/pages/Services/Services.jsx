@@ -29,6 +29,7 @@ import api from '../../api/api'
 import { SERVICE_STATUS_LIST } from '../../constants/serviceStatuses'
 import { getServiceDateRange } from './serviceDateRange'
 import CustomerSelect from '../../components/CustomerSelect'
+import A4ServiceFormActions from '../../components/A4ServiceFormActions'
 import './Services.css'
 
 const DEFAULT_SERVICE_STATUS_OPTIONS = SERVICE_STATUS_LIST
@@ -2325,6 +2326,7 @@ const Services = ({ renderAsModalOnly = false, initialServiceId = null, onCloseM
                               </td>
                               <td className="text-end px-3 text-nowrap">
                                 <div className="service-row-actions">
+                                  <A4ServiceFormActions service={svc} compact className="service-row-action-btn" />
                                   <Button variant="dark" size="sm" className="service-row-action-btn" onClick={() => openDetailModal(svc.id)} title="Detay" aria-label="Detay">Detay</Button>
                                   <Button variant="outline-primary" size="sm" className="service-row-action-btn" onClick={() => openEditModal(svc)} title="Düzenle" aria-label="Düzenle">Düzenle</Button>
                                   <Button variant="outline-danger" size="sm" className="service-row-action-btn" onClick={() => downloadServiceFormPdf(svc)} disabled={actionLoadingKey === `pdf-${svc.id}`} title="Servis PDF" aria-label="Servis PDF">PDF</Button>
@@ -2758,7 +2760,8 @@ const Services = ({ renderAsModalOnly = false, initialServiceId = null, onCloseM
                       {detailMeta.label}
                     </div>
                   </div>
-                  <div className="d-flex gap-2">
+                  <div className="d-flex flex-wrap gap-2">
+                    <A4ServiceFormActions service={selectedService} />
                     <Button size="sm" variant="outline-dark" onClick={() => downloadServiceFormPdf(selectedService)} disabled={actionLoadingKey === `pdf-${selectedService.id}`}>
                       <FaFilePdf className="me-1" /> PDF
                     </Button>
