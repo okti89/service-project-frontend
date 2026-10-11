@@ -31,7 +31,7 @@ import {
 import toast from 'react-hot-toast'
 
 import api from '../api/api'
-import A4ServiceFormActions from './A4ServiceFormActions'
+import ServiceFormActions from './ServiceFormActions'
 import { getServiceStatusLabel, getServiceStatusMeta, SERVICE_STATUS_LIST } from '../constants/serviceStatuses'
 
 function formatDateTime(value) {
@@ -159,7 +159,7 @@ const ServiceDetailModal = ({ serviceId, initialService = null, show, onClose, o
     if (typeof onClose === 'function') onClose()
   }
 
-  const downloadServiceFormPdf = async () => {
+  const downloadServiceReceiptPdf = async () => {
     if (!service?.id) return
     setActionLoadingKey(`pdf-${service.id}`)
     try {
@@ -174,9 +174,9 @@ const ServiceDetailModal = ({ serviceId, initialService = null, show, onClose, o
       link.click()
       link.remove()
       URL.revokeObjectURL(fileUrl)
-      toast.success('Servis formu PDF indirildi.')
+      toast.success('Servis fişi PDF indirildi.')
     } catch (error) {
-      toast.error(readApiError(error, 'Servis PDF oluşturulamadı.'))
+      toast.error(readApiError(error, 'Servis fişi PDF oluşturulamadı.'))
     } finally {
       setActionLoadingKey('')
     }
@@ -288,14 +288,14 @@ const ServiceDetailModal = ({ serviceId, initialService = null, show, onClose, o
                 </div>
               </div>
               <div className="d-flex flex-wrap gap-2">
-                <A4ServiceFormActions service={service} />
+                <ServiceFormActions service={service} />
                 <Button
                   size="sm"
                   variant="outline-dark"
-                  onClick={downloadServiceFormPdf}
+                  onClick={downloadServiceReceiptPdf}
                   disabled={actionLoadingKey === `pdf-${service.id}`}
                 >
-                  <FaFilePdf className="me-1" /> PDF
+                  <FaFilePdf className="me-1" /> Servis Fişi
                 </Button>
                 <Button
                   size="sm"

@@ -4,7 +4,7 @@ import { FaDownload, FaEye, FaFilePdf, FaPrint } from 'react-icons/fa'
 import toast from 'react-hot-toast'
 import api from '../api/api'
 
-export default function A4ServiceFormActions({ service, compact = false, className = '' }) {
+export default function ServiceFormActions({ service, className = '' }) {
   const [busy, setBusy] = useState(false)
   const [preview, setPreview] = useState(null)
   const [ready, setReady] = useState(false)
@@ -43,15 +43,15 @@ export default function A4ServiceFormActions({ service, compact = false, classNa
       const response = await api.get(`/services/admin-services/${service.id}/form-a4-pdf/`, { responseType: 'blob' })
       const blob = response.data instanceof Blob ? response.data : new Blob([response.data])
       if (await blob.slice(0, 5).text() !== '%PDF-') {
-        throw new Error('Sunucudan geçerli bir A4 PDF dosyası alınamadı.')
+        throw new Error('Sunucudan geçerli bir servis formu PDF dosyası alınamadı.')
       }
-      const filename = `Servis_Formu_A4_${service.receipt_number || service.id}.pdf`.replace(/[\\/:*?"<>|]/g, '_')
+      const filename = `Servis_Formu_${service.receipt_number || service.id}.pdf`.replace(/[\\/:*?"<>|]/g, '_')
       const url = URL.createObjectURL(new Blob([blob], { type: 'application/pdf' }))
       if (action === 'download') {
         saveFile(url, filename)
         // Let the browser finish reading the download before releasing its URL.
         window.setTimeout(() => URL.revokeObjectURL(url), 60000)
-        toast.success('A4 servis formu indirildi.')
+        toast.success('Servis formu indirildi.')
       } else {
         printPending.current = action === 'print'
         setReady(false)
@@ -59,8 +59,8 @@ export default function A4ServiceFormActions({ service, compact = false, classNa
       }
     } catch (error) {
       let message = error?.response?.status === 404
-        ? 'A4 servis formu bulunamadı. Sunucu güncellemesini ve servis kaydını kontrol edin.'
-        : error?.message || 'A4 servis formu alınamadı.'
+        ? 'Servis formu bulunamadı. Sunucu güncellemesini ve servis kaydını kontrol edin.'
+        : error?.message || 'Servis formu alınamadı.'
       if (error?.response?.data instanceof Blob) {
         try {
           const body = JSON.parse(await error.response.data.text())
@@ -83,10 +83,10 @@ export default function A4ServiceFormActions({ service, compact = false, classNa
     <Dropdown>
       <Dropdown.Toggle
         size="sm" variant="outline-primary" className={className}
-        disabled={busy || !service?.id} title="A4 Servis Formu" aria-label="A4 Servis Formu"
+        disabled={busy || !service?.id} title="Servis Formu" aria-label="Servis Formu"
       >
         {busy ? <Spinner size="sm" className="me-1" /> : <FaFilePdf className="me-1" />}
-        {compact ? 'A4' : 'A4 Servis Formu'}
+        Servis Formu
       </Dropdown.Toggle>
       <Dropdown.Menu align="end" popperConfig={{ strategy: 'fixed' }} style={{ zIndex: 1080 }}>
         <Dropdown.Item onClick={() => open('view')}><FaEye className="me-2" />Görüntüle</Dropdown.Item>
@@ -95,10 +95,10 @@ export default function A4ServiceFormActions({ service, compact = false, classNa
       </Dropdown.Menu>
     </Dropdown>
     <Modal show={Boolean(preview)} onHide={closePreview} size="xl" centered>
-      <Modal.Header closeButton><Modal.Title>A4 Servis Formu</Modal.Title></Modal.Header>
+      <Modal.Header closeButton><Modal.Title>Servis Formu</Modal.Title></Modal.Header>
       <Modal.Body>
         {preview && <iframe
-          ref={frameRef} src={preview.url} title="A4 servis formu PDF önizlemesi"
+          ref={frameRef} src={preview.url} title="Servis formu PDF önizlemesi"
           style={{ width: '100%', height: '65vh', border: 0 }}
           onLoad={() => {
             setReady(true)
